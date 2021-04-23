@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Liquid&#39;s Blog</title>
+  
+  
+  <link href="http://example.com/atom.xml" rel="self"/>
+  
+  <link href="http://example.com/"/>
+  <updated>2021-04-23T16:46:11.835Z</updated>
+  <id>http://example.com/</id>
+  
+  <author>
+    <name>Liquid</name>
+    
+  </author>
+  
+  <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>CTF特训营</title>
+    <link href="http://example.com/2021/04/24/CTF%E7%89%B9%E8%AE%AD%E8%90%A5/"/>
+    <id>http://example.com/2021/04/24/CTF%E7%89%B9%E8%AE%AD%E8%90%A5/</id>
+    <published>2021-04-23T16:45:39.000Z</published>
+    <updated>2021-04-23T16:46:11.835Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="第18章-Crypto概述"><a href="#第18章-Crypto概述" class="headerlink" title="第18章 Crypto概述"></a>第18章 Crypto概述</h2><p><strong>Crypto选手应有的能力</strong>：</p><ol><li>识别能力：识别出密码算法和编码算法</li><li>攻击能力：结合环境联想到特定算法的攻击方法</li><li>分析能力：对未知算法人工分析</li><li>编程能力：编程实现破解算法的程序，并认识到复杂度</li><li>学习能力：快速理解最新文献中的密码攻击并实现</li><li>跨领域能力：Crypto经常多领域结合出现，如Reverse、PWN、Web</li></ol><p><strong>密码学攻击</strong>：</p><ol><li><p>唯密文攻击</p></li><li><p>已知明文攻击</p></li><li><p>选择明文攻击</p></li><li><p>选择密文攻击</p></li></ol><h2 id="第19章-编码"><a href="#第19章-编码" class="headerlink" title="第19章 编码"></a>第19章 编码</h2><p>编码（encode）是信息的另一种表达方式，可以解决一些传输问题。<br>将编码信息转化为原始信息，称之为解码（decode）。</p><h3 id="19-1-hex"><a href="#19-1-hex" class="headerlink" title="19.1 hex"></a>19.1 hex</h3><p>hex编码就是根据每个字符的ASCII码进行<strong>16进制</strong>的转换。<br><strong>一个字符经过编码变成了两个字符</strong>。<br>还可以作为将字符串转为十进制运算时的中转。</p><h3 id="19-2-urlencode"><a href="#19-2-urlencode" class="headerlink" title="19.2 urlencode"></a>19.2 urlencode</h3><p>这种编码用于浏览器和网站之间的数据交换。可以解决一些特殊字符在传输过程中造成的问题。<br>这种编码是在特殊字符hex的基础上，在每个字符前置一个%。所以在编码和解码的过程中，<strong>只需要关注%，连带着%的三个字符对应着明文中的一个字符</strong>。</p><h3 id="19-3-morsecode"><a href="#19-3-morsecode" class="headerlink" title="19.3 morsecode"></a>19.3 morsecode</h3><p>“.” 表示短音，“—” 表示长音，“/” 或”空格“表示分隔符。</p><p><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/%E5%9B%BD%E9%99%85%E6%91%A9%E5%B0%94%E6%96%AF%E7%94%B5%E7%A0%81.svg/315px-%E5%9B%BD%E9%99%85%E6%91%A9%E5%B0%94%E6%96%AF%E7%94%B5%E7%A0%81.svg.png" alt="img"></p><h3 id="19-4-jsfuck"><a href="#19-4-jsfuck" class="headerlink" title="19.4 jsfuck"></a>19.4 jsfuck</h3><p>仅用六个字符  <strong>()+[]!</strong> 就可以书写任意的JavaScript代码。</p><h3 id="19-5-uuencode"><a href="#19-5-uuencode" class="headerlink" title="19.5 uuencode"></a>19.5 uuencode</h3><p>可以将二进制文件转换为可见字符文本的一种编码。<br>特征是<strong>范围从32到95，没有小写字母</strong>。</p><blockquote><p><strong>UUencode</strong>是一种二进制到文字的编码！</p><p>它不是MIME编码中一员。最早在unix 邮件系统中使用，全称：Unix-to-Unix encoding。它也是定义了用可打印字符表示二进制文字一种方法，并不是一种新的编码集合。</p><p>Uuencode将输入文本以每三个字节为单位进行编码，如果最后剩下的资料少于三个字节，不够的部份用零补齐。三个字节共有24个Bit，以6-bit为单位分为4个组，每个组以十进制来表示所出现的字节的数值。这个数值只会落在0到63之间。然后将每个数加上32，所产生的结果刚好落在ASCII字符集中可打印字符（32-空白…95-底线）的范围之中。</p><p>跟Base64具有非常多的类似，也做了一些特殊转码说明！因为对所有文本都会编码一次可读性不是很好！！</p></blockquote><p><a href="http://blog.chacuo.net/753.html">uuencode编码算法</a></p><h3 id="19-6-base家族"><a href="#19-6-base家族" class="headerlink" title="19.6 base家族"></a>19.6 base家族</h3><p>主要功能是将特殊字符和不可见字符转换为常见字符。<br>hex编码其实就是base16编码。因为hex是用字符ASCII码的十六进制表示，即用16个字符表示256个字符，所以叫base16。<br>同理，base32和base64就是用32、64个字符表示256个字符。<br>判断是不是base编码的方法：</p><ol><li><strong>最后有没有“=”，如果有则一定是。一个”=“是base32，两个是base64.</strong></li><li><strong>如果没有”=“，也有可能是base16，即hex编码，要看编码中的字符是否都在base字符集上。</strong></li></ol>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h2 id=&quot;第18章-Crypto概述&quot;&gt;&lt;a href=&quot;#第18章-Crypto概述&quot; class=&quot;headerlink&quot; title=&quot;第18章 Crypto概述&quot;&gt;&lt;/a&gt;第18章 Crypto概述&lt;/h2&gt;&lt;p&gt;&lt;strong&gt;Crypto选手应有的能力&lt;/str</summary>
+      
+    
+    
+    
+    <category term="读书笔记" scheme="http://example.com/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
+    
+    
+    <category term="CTF" scheme="http://example.com/tags/CTF/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Hello World</title>
+    <link href="http://example.com/2021/04/21/hello-world/"/>
+    <id>http://example.com/2021/04/21/hello-world/</id>
+    <published>2021-04-20T17:24:31.184Z</published>
+    <updated>2021-04-20T17:24:31.185Z</updated>
+    
+    <content type="html"><![CDATA[<p>Welcome to <a href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p><h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/writing.html">Writing</a></p><h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/server.html">Server</a></p><h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/generating.html">Generating</a></p><h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;p&gt;Welcome to &lt;a href=&quot;https://hexo.io/&quot;&gt;Hexo&lt;/a&gt;! This is your very first post. Check &lt;a href=&quot;https://hexo.io/docs/&quot;&gt;documentation&lt;/a&gt; for</summary>
+      
+    
+    
+    
+    
+  </entry>
+  
+</feed>
