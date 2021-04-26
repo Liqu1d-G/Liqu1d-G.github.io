@@ -158,6 +158,89 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/04/26/BUUCTF-Crypto-WP/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Liquid">
+      <meta itemprop="description" content="一个写字的地方而已">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Liquid's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/04/26/BUUCTF-Crypto-WP/" class="post-title-link" itemprop="url">BUUCTF Crypto WP</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-04-26 22:50:02 / 修改时间：23:02:38" itemprop="dateCreated datePublished" datetime="2021-04-26T22:50:02+08:00">2021-04-26</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/WP/" itemprop="url" rel="index"><span itemprop="name">WP</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="MD5"><a href="#MD5" class="headerlink" title="MD5"></a>MD5</h2><p><strong>flag{admin1}</strong></p>
+<p>MD5是输入不定长度信息，输出固定长度128-bits的算法。经过程序流程，生成四个32位数据，最后联合起来成为一个128-bits<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E6%95%A3%E5%88%97">散列</a>。基本方式为，求余、取余、调整长度、与链接变量进行循环运算。得出结果。</p>
+<p><img src="https://wikimedia.org/api/rest_v1/media/math/render/svg/29bfebad4e7bdd4a2fc1210694eb5664262faecc" alt="F(X,Y,Z) = (X\wedge{Y}) \vee (\neg{X} \wedge{Z})"></p>
+<p><img src="https://wikimedia.org/api/rest_v1/media/math/render/svg/7068038702afd55190f991518f3a9188565f32d0" alt="G(X,Y,Z) = (X\wedge{Z}) \vee (Y \wedge \neg{Z})"></p>
+<p><img src="https://wikimedia.org/api/rest_v1/media/math/render/svg/c121ed0510b6ad3ffde9b89cec96ff7552ae9236" alt="H(X,Y,Z) = X \oplus Y \oplus Z"></p>
+<p><img src="https://wikimedia.org/api/rest_v1/media/math/render/svg/2f119366de7d323f5e02b8d12a741968fa9d0f99" alt="I(X,Y,Z) = Y \oplus (X \vee \neg{Z})"></p>
+<p><img src="https://wikimedia.org/api/rest_v1/media/math/render/svg/ed39414f7a4720bbf82749a9fcd3ebb15220ea72" alt="\oplus, \wedge, \vee, \neg"> 是 <em>XOR</em>, <em>AND</em>, <em>OR</em> , <em>NOT</em> 的符号。</p>
+<h2 id="password"><a href="#password" class="headerlink" title="password"></a>password</h2><p><strong>flag{zs19900315}</strong></p>
+<p>可能是大多数人的密码都是姓名缩写加生日</p>
+<h2 id="Unencode"><a href="#Unencode" class="headerlink" title="Unencode"></a>Unencode</h2><p><strong>flag{dsdasdsa99877LLLKK}</strong></p>
+<p><em>Uuencode</em>将输入文本以每三个字节为单位进行编码，如果最后剩下的资料少于三个字节，不够的部份用零补齐。三个字节共有24个Bit，以6-bit为单位分为4个组，每个组以十进制来表示所出现的字节的数值。这个数值只会落在0到63之间。然后将每个数加上32，所产生的结果刚好落在ASCII字符集中可打印字符（32-空白…95-底线）的范围之中。</p>
+<p><a target="_blank" rel="noopener" href="http://blog.chacuo.net/753.html">uuencode编码算法</a></p>
+<h2 id="URL编码"><a href="#URL编码" class="headerlink" title="URL编码"></a>URL编码</h2><p><strong>flag{and 1=1}</strong></p>
+<p>这种编码是在特殊字符hex的基础上，在每个字符前置一个%。所以在编码和解码的过程中，<strong>只需要关注%，连带着%的三个字符对应着明文中的一个字符</strong>。</p>
+<h2 id="摩斯"><a href="#摩斯" class="headerlink" title="摩斯"></a>摩斯</h2><p><strong>flag{ILOVEYOU}</strong></p>
+<p><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/%E5%9B%BD%E9%99%85%E6%91%A9%E5%B0%94%E6%96%AF%E7%94%B5%E7%A0%81.svg/315px-%E5%9B%BD%E9%99%85%E6%91%A9%E5%B0%94%E6%96%AF%E7%94%B5%E7%A0%81.svg.png" alt="img"></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://example.com/2021/04/24/CTF%E7%89%B9%E8%AE%AD%E8%90%A5/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -396,20 +479,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">2</span>
+          <span class="site-state-item-count">3</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-count">2</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-count">2</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>

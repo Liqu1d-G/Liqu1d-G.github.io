@@ -6,7 +6,7 @@
   <link href="http://example.com/atom.xml" rel="self"/>
   
   <link href="http://example.com/"/>
-  <updated>2021-04-23T16:46:11.835Z</updated>
+  <updated>2021-04-26T15:02:38.151Z</updated>
   <id>http://example.com/</id>
   
   <author>
@@ -15,6 +15,33 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>BUUCTF Crypto WP</title>
+    <link href="http://example.com/2021/04/26/BUUCTF-Crypto-WP/"/>
+    <id>http://example.com/2021/04/26/BUUCTF-Crypto-WP/</id>
+    <published>2021-04-26T14:50:02.000Z</published>
+    <updated>2021-04-26T15:02:38.151Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="MD5"><a href="#MD5" class="headerlink" title="MD5"></a>MD5</h2><p><strong>flag{admin1}</strong></p><p>MD5是输入不定长度信息，输出固定长度128-bits的算法。经过程序流程，生成四个32位数据，最后联合起来成为一个128-bits<a href="https://zh.wikipedia.org/wiki/%E6%95%A3%E5%88%97">散列</a>。基本方式为，求余、取余、调整长度、与链接变量进行循环运算。得出结果。</p><p><img src="https://wikimedia.org/api/rest_v1/media/math/render/svg/29bfebad4e7bdd4a2fc1210694eb5664262faecc" alt="F(X,Y,Z) = (X\wedge{Y}) \vee (\neg{X} \wedge{Z})"></p><p><img src="https://wikimedia.org/api/rest_v1/media/math/render/svg/7068038702afd55190f991518f3a9188565f32d0" alt="G(X,Y,Z) = (X\wedge{Z}) \vee (Y \wedge \neg{Z})"></p><p><img src="https://wikimedia.org/api/rest_v1/media/math/render/svg/c121ed0510b6ad3ffde9b89cec96ff7552ae9236" alt="H(X,Y,Z) = X \oplus Y \oplus Z"></p><p><img src="https://wikimedia.org/api/rest_v1/media/math/render/svg/2f119366de7d323f5e02b8d12a741968fa9d0f99" alt="I(X,Y,Z) = Y \oplus (X \vee \neg{Z})"></p><p><img src="https://wikimedia.org/api/rest_v1/media/math/render/svg/ed39414f7a4720bbf82749a9fcd3ebb15220ea72" alt="\oplus, \wedge, \vee, \neg"> 是 <em>XOR</em>, <em>AND</em>, <em>OR</em> , <em>NOT</em> 的符号。</p><h2 id="password"><a href="#password" class="headerlink" title="password"></a>password</h2><p><strong>flag{zs19900315}</strong></p><p>可能是大多数人的密码都是姓名缩写加生日</p><h2 id="Unencode"><a href="#Unencode" class="headerlink" title="Unencode"></a>Unencode</h2><p><strong>flag{dsdasdsa99877LLLKK}</strong></p><p><em>Uuencode</em>将输入文本以每三个字节为单位进行编码，如果最后剩下的资料少于三个字节，不够的部份用零补齐。三个字节共有24个Bit，以6-bit为单位分为4个组，每个组以十进制来表示所出现的字节的数值。这个数值只会落在0到63之间。然后将每个数加上32，所产生的结果刚好落在ASCII字符集中可打印字符（32-空白…95-底线）的范围之中。</p><p><a href="http://blog.chacuo.net/753.html">uuencode编码算法</a></p><h2 id="URL编码"><a href="#URL编码" class="headerlink" title="URL编码"></a>URL编码</h2><p><strong>flag{and 1=1}</strong></p><p>这种编码是在特殊字符hex的基础上，在每个字符前置一个%。所以在编码和解码的过程中，<strong>只需要关注%，连带着%的三个字符对应着明文中的一个字符</strong>。</p><h2 id="摩斯"><a href="#摩斯" class="headerlink" title="摩斯"></a>摩斯</h2><p><strong>flag{ILOVEYOU}</strong></p><p><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/%E5%9B%BD%E9%99%85%E6%91%A9%E5%B0%94%E6%96%AF%E7%94%B5%E7%A0%81.svg/315px-%E5%9B%BD%E9%99%85%E6%91%A9%E5%B0%94%E6%96%AF%E7%94%B5%E7%A0%81.svg.png" alt="img"></p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h2 id=&quot;MD5&quot;&gt;&lt;a href=&quot;#MD5&quot; class=&quot;headerlink&quot; title=&quot;MD5&quot;&gt;&lt;/a&gt;MD5&lt;/h2&gt;&lt;p&gt;&lt;strong&gt;flag{admin1}&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;MD5是输入不定长度信息，输出固定长度128-bits的算</summary>
+      
+    
+    
+    
+    <category term="WP" scheme="http://example.com/categories/WP/"/>
+    
+    
+    <category term="CTF" scheme="http://example.com/tags/CTF/"/>
+    
+    <category term="Crypto" scheme="http://example.com/tags/Crypto/"/>
+    
+  </entry>
   
   <entry>
     <title>CTF特训营</title>
