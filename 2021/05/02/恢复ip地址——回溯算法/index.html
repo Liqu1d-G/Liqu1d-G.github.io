@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="问题描述 给定一个只包含数字的字符串，用以表示一个 IP 地址，返回所有可能从 s 获得的 有效 IP 地址 。你可以按任何顺序返回答案。 有效 IP 地址 正好由四个整数（每个整数位于 0 到 255 之间组成，且不能含有前导 0），整数之间用 &#39;.&#39; 分隔。 例如：&quot;0.1.2.201&quot; 和 &quot;192.168.1.1&quot; 是 有效 IP 地址，但是 &quot;0.011.255.245&quot;、&quot;192">
+<meta property="og:type" content="article">
+<meta property="og:title" content="恢复ip地址——回溯算法">
+<meta property="og:url" content="http://example.com/2021/05/02/%E6%81%A2%E5%A4%8Dip%E5%9C%B0%E5%9D%80%E2%80%94%E2%80%94%E5%9B%9E%E6%BA%AF%E7%AE%97%E6%B3%95/index.html">
+<meta property="og:site_name" content="Liquid&#39;s Blog">
+<meta property="og:description" content="问题描述 给定一个只包含数字的字符串，用以表示一个 IP 地址，返回所有可能从 s 获得的 有效 IP 地址 。你可以按任何顺序返回答案。 有效 IP 地址 正好由四个整数（每个整数位于 0 到 255 之间组成，且不能含有前导 0），整数之间用 &#39;.&#39; 分隔。 例如：&quot;0.1.2.201&quot; 和 &quot;192.168.1.1&quot; 是 有效 IP 地址，但是 &quot;0.011.255.245&quot;、&quot;192">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-05-02T07:54:35.000Z">
+<meta property="article:modified_time" content="2021-05-02T07:57:08.488Z">
+<meta property="article:author" content="Liquid">
+<meta property="article:tag" content="算法">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2021/05/02/%E6%81%A2%E5%A4%8Dip%E5%9C%B0%E5%9D%80%E2%80%94%E2%80%94%E5%9B%9E%E6%BA%AF%E7%AE%97%E6%B3%95/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>恢复ip地址——回溯算法 | Liquid's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="Liquid's Blog" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Liquid's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/05/02/%E6%81%A2%E5%A4%8Dip%E5%9C%B0%E5%9D%80%E2%80%94%E2%80%94%E5%9B%9E%E6%BA%AF%E7%AE%97%E6%B3%95/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Liquid">
+      <meta itemprop="description" content="一个写字的地方而已">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Liquid's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          恢复ip地址——回溯算法
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-05-02 15:54:35 / 修改时间：15:57:08" itemprop="dateCreated datePublished" datetime="2021-05-02T15:54:35+08:00">2021-05-02</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/" itemprop="url" rel="index"><span itemprop="name">数据结构与算法</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="问题描述">问题描述</h1>
+<p>给定一个只包含数字的字符串，用以表示一个 IP 地址，返回所有可能从 s 获得的 有效 IP 地址 。你可以按任何顺序返回答案。</p>
+<p>有效 IP 地址 正好由四个整数（每个整数位于 0 到 255 之间组成，且不能含有前导 0），整数之间用 '.' 分隔。</p>
+<p>例如："0.1.2.201" 和 "192.168.1.1" 是 有效 IP 地址，但是 "0.011.255.245"、"192.168.1.312" 和 "192.168@1.1" 是 无效 IP 地址。</p>
+<blockquote>
+<p>示例 1：</p>
+</blockquote>
+<blockquote>
+<p>输入：s = "25525511135"</p>
+</blockquote>
+<blockquote>
+<p>输出：["255.255.11.135","255.255.111.35"]</p>
+</blockquote>
+<h1 id="问题分析">问题分析</h1>
+<p>把字符串分解成符合规定的ip地址，首先要明白ip地址的性质</p>
+<ul>
+<li>ip地址分为四节，每节取值范围在[0,255]</li>
+<li>对于取出的字符串，若它的第一位为’0’，那么它的长度只能为1，多位字符不能以0作为开头</li>
+</ul>
+<p>明白这两点，我们可以每次拿出[1,3]个字符，判断是否符合ip地址的条件，若符合，则递归剩下的字符串，直到四节都符合，那么就得到了一个解</p>
+<h1 id="代码实现">代码实现</h1>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> MaxSize 100</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="keyword">char</span> data[MaxSize];</span><br><span class="line">    <span class="keyword">int</span> length;</span><br><span class="line">&#125;IP;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">addch</span><span class="params">(IP&amp;ip,<span class="keyword">char</span> ch)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    ip.data[ip.length]=ch;</span><br><span class="line">    ip.length++;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function">IP <span class="title">addot</span><span class="params">(IP ip)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    addch(ip,<span class="string">&#x27;.&#x27;</span>);</span><br><span class="line">    <span class="keyword">return</span> ip;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">solveip</span><span class="params">(<span class="keyword">char</span> s[],<span class="keyword">int</span> n,<span class="keyword">int</span> start,<span class="keyword">int</span> step,IP ip)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(start&lt;=n)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span>(start==n&amp;&amp;step==<span class="number">4</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;ip.length<span class="number">-1</span>;i++)</span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">&quot;%c&quot;</span>,ip.data[i]);</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">&quot;\n&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">int</span> num=<span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=start;i&lt;n&amp;&amp;i&lt;start+<span class="number">3</span>;i++)</span><br><span class="line">    &#123;</span><br><span class="line">        num=<span class="number">10</span>*num+(s[i]-<span class="string">&#x27;0&#x27;</span>);</span><br><span class="line">        <span class="keyword">if</span>(num&lt;=<span class="number">255</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            addch(ip,s[i]);</span><br><span class="line">            solveip(s,n,i+<span class="number">1</span>,step+<span class="number">1</span>,addot(ip));</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(num==<span class="number">0</span>) <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">char</span> s[MaxSize]=<span class="string">&quot;25525511135 &quot;</span>;</span><br><span class="line">    <span class="keyword">int</span> n=<span class="number">11</span>;</span><br><span class="line">    IP ip;</span><br><span class="line">    ip.length=<span class="number">0</span>;</span><br><span class="line">    solveip(s,n,<span class="number">0</span>,<span class="number">0</span>,ip);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="代码分析">代码分析</h1>
+<h2 id="算法">算法</h2>
+<p>使用<strong>回溯算法</strong>，即每一次都按最优解向前搜索，不满足条件时则回溯到上一次的情况，进行次优解的搜索。</p>
+<p>表现在本次代码中，最优解，就是每取一位字符，就按每一节的取值范围在[0,9]进行设置。若最优解不能满足，则回溯到上一个时间点，使用次优解进行搜索，而次优解即是取到两位字符，每一节按照取值范围[10,99]进行设置。若次优解仍不能满足，则回溯到上一个时间点，用最次解进行搜索，即取到三位字符，每一节按照取值范围[100,225]进行设置。</p>
+<p>需要注意的是，其中的一节所选取的解的优劣，不会影响到下一节的选择，即下一节依然会使用最优解。 而且所谓回溯到上一个时间点，就是回溯到前一节的设置。</p>
+<h2 id="核心模块">核心模块</h2>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">solveip</span><span class="params">(<span class="keyword">char</span> s[],<span class="keyword">int</span> n,<span class="keyword">int</span> start,<span class="keyword">int</span> step,IP ip)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(start&lt;=n)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span>(start==n&amp;&amp;step==<span class="number">4</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;ip.length<span class="number">-1</span>;i++)</span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">&quot;%c&quot;</span>,ip.data[i]);</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">&quot;\n&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">int</span> num=<span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=start;i&lt;n&amp;&amp;i&lt;start+<span class="number">3</span>;i++)</span><br><span class="line">    &#123;</span><br><span class="line">        num=<span class="number">10</span>*num+(s[i]-<span class="string">&#x27;0&#x27;</span>);</span><br><span class="line">        <span class="keyword">if</span>(num&lt;=<span class="number">255</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            addch(ip,s[i]);</span><br><span class="line">            solveip(s,n,i+<span class="number">1</span>,step+<span class="number">1</span>,addot(ip));</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(num==<span class="number">0</span>) <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="终止条件">终止条件</h3>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(start&lt;=n)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span>(start==n&amp;&amp;step==<span class="number">4</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;ip.length<span class="number">-1</span>;i++)</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">&quot;%c&quot;</span>,ip.data[i]);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里的终止条件有两个</p>
+<ol type="1">
+<li>start==n，即字符串已经读取到最后一个</li>
+<li>step==4，即节数刚好是四个</li>
+</ol>
+<p>注意这里的step，满足的终止条件是正好是四个，不论是过多还是过少都是不满足的。并且，过多的情况可以有效的限制从头开始数起的已经满足条件的含有三个字符的节不会被回溯掉，具体会在下面的执行过程中展示。</p>
+<p>输出时，for循环的终止条件之所以设置为length-1，是为了避免输出ip串中最后储存的‘.’</p>
+<p>而输出完成一个满足条件的ip串后，程序也不会停止，而是回溯到上一个时间点，去寻找其他形式的满足条件的串。 例如，在找到</p>
+<blockquote>
+<p>255.255.11.135</p>
+</blockquote>
+<p>之后，程序会回溯到</p>
+<blockquote>
+<p>255.255.11</p>
+</blockquote>
+<p>来继续查找，进而找到</p>
+<blockquote>
+<p>255.255.111.35</p>
+</blockquote>
+<p>直到再也找不出来，然后被调函数不断出栈，回到最开始调用的第一个solveip，结束。</p>
+<h3 id="递归过程">递归过程</h3>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> num=<span class="number">0</span>;</span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">int</span> i=start;i&lt;n&amp;&amp;i&lt;start+<span class="number">3</span>;i++)</span><br><span class="line">&#123;</span><br><span class="line">    num=<span class="number">10</span>*num+(s[i]-<span class="string">&#x27;0&#x27;</span>);</span><br><span class="line">    <span class="keyword">if</span>(num&lt;=<span class="number">255</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        addch(ip,s[i]);</span><br><span class="line">        solveip(s,n,i+<span class="number">1</span>,step+<span class="number">1</span>,addot(ip));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span>(num==<span class="number">0</span>) <span class="keyword">break</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里的for循环以取到三个字符或是字符串被取完为终止条件 ，限制了每一节的最大长度。 同时两个if语句，限制了：</p>
+<ul>
+<li>每节取值范围在[0,255]</li>
+<li>对于取出的字符串，若它的第一位为’0’，那么它的长度只能为1，多位字符不能以0作为开头</li>
+</ul>
+<p>addch函数将取到的字符填入ip串中。 addot函数将传入下一个solveip的IP串尾部加上‘.’，意味着下一个soveip中进行的是下一个字节的操作，当然，在回溯的过程中，无论是下一个字节中的操作，还是调用时加上的‘.’，都会被回溯掉。</p>
+<p>在还没有进行回溯时，会不断的调用函数进栈，然后一个节都是最优解法，如</p>
+<blockquote>
+<p>2 2.2 2.2.5 ...... 2.2.5.2.2.5.1.1.1.3.5</p>
+</blockquote>
+<p>在调用下一次的时候</p>
+<blockquote>
+<p>2.2.5.2.2.5.1.1.1.3.5.</p>
+</blockquote>
+<p>就会出现问题，字符串被取完了，for循环无法进行，调用终止，函数出栈，回到上一个时间点</p>
+<blockquote>
+<p>2.2.5.2.2.5.1.1.1.3.5</p>
+</blockquote>
+<p>但是这时再进行下一次循环的时候，同样达到了终止条件，于是调用终止，函数出栈，回到上一个时间点</p>
+<blockquote>
+<p>2.2.5.2.2.5.1.1.1.3</p>
+</blockquote>
+<p>进行下一次for循环</p>
+<blockquote>
+<p>2.2.5.2.2.5.1.1.1.35</p>
+</blockquote>
+<p>依然不满足条件，回溯</p>
+<blockquote>
+<p>2.2.5.2.2.5.1.1.1 2.2.5.2.2.5.1.1.13 2.2.5.2.2.5.1.1.13.5</p>
+</blockquote>
+<p>如此不断的搜索与回溯，可以达到第一个被调用的函数</p>
+<blockquote>
+<p>2</p>
+</blockquote>
+<p>这时继续for循环</p>
+<blockquote>
+<p>22 22.5.2.2.5.1.1.1.3.5</p>
+</blockquote>
+<p>重复上述过程，可以达到第一节被满足的情况</p>
+<blockquote>
+<p>225 225.2.2.5.1.1.1.3.5</p>
+</blockquote>
+<p>如果继续回溯，会自然的想到，如果回溯到</p>
+<blockquote>
+<p>225</p>
+</blockquote>
+<p>那么继续进行第一个被调函数中的for循环的话，循环终止，函数结束，就无法完成。 其实，根本不会回溯到这种情况，因为第二节会在达到这种情况之前被满足，即回溯到</p>
+<blockquote>
+<p>225.22</p>
+</blockquote>
+<p>就会有</p>
+<blockquote>
+<p>225.225 225.225.1.1.1.3.5</p>
+</blockquote>
+<p>最终，达到终止条件</p>
+<blockquote>
+<p>225.225.11.135</p>
+</blockquote>
+<h1 id="总结">总结</h1>
+<p>递归过程较为复杂，在搜索与回溯之间，函数不断地出栈入栈，因此时间复杂度会比较高。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E7%AE%97%E6%B3%95/" rel="tag"># 算法</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/04/27/%E6%A8%A1%E7%94%B5%E7%9A%84%E4%B8%80%E4%BA%9BTips/" rel="prev" title="模电">
+      <i class="fa fa-chevron-left"></i> 模电
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%97%AE%E9%A2%98%E6%8F%8F%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">问题描述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%97%AE%E9%A2%98%E5%88%86%E6%9E%90"><span class="nav-number">2.</span> <span class="nav-text">问题分析</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0"><span class="nav-number">3.</span> <span class="nav-text">代码实现</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90"><span class="nav-number">4.</span> <span class="nav-text">代码分析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AE%97%E6%B3%95"><span class="nav-number">4.1.</span> <span class="nav-text">算法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A0%B8%E5%BF%83%E6%A8%A1%E5%9D%97"><span class="nav-number">4.2.</span> <span class="nav-text">核心模块</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%88%E6%AD%A2%E6%9D%A1%E4%BB%B6"><span class="nav-number">4.2.1.</span> <span class="nav-text">终止条件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%80%92%E5%BD%92%E8%BF%87%E7%A8%8B"><span class="nav-number">4.2.2.</span> <span class="nav-text">递归过程</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Liquid</p>
+  <div class="site-description" itemprop="description">一个写字的地方而已</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">5</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Liquid</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+<div class="run_time" style=" text-align:center;">
+  <span id="timeDate">载入天数...</span><span id="times">载入时分秒...</span>
+  <script>
+    var now = new Date(); 
+    function createtime() { 
+        var grt= new Date("04/21/2021 01:24:31");//此处修改你的建站时间或者网站上线时间 
+        now.setTime(now.getTime()+250); 
+        days = (now - grt ) / 1000 / 60 / 60 / 24; dnum = Math.floor(days); 
+        hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum); hnum = Math.floor(hours); 
+        if(String(hnum).length ==1 ){hnum = "0" + hnum;} minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum); 
+        mnum = Math.floor(minutes); if(String(mnum).length ==1 ){mnum = "0" + mnum;} 
+        seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum); 
+        snum = Math.round(seconds); if(String(snum).length ==1 ){snum = "0" + snum;} 
+        document.getElementById("timeDate").innerHTML = "本站已安全运行 "+dnum+" 天 "; 
+        document.getElementById("times").innerHTML = hnum + " 小时 " + mnum + " 分 " + snum + " 秒"; 
+    } 
+    setInterval("createtime()",250);
+  </script>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script color='0,0,255' opacity='0.5' zIndex='-1' count='99' src="/lib/canvas-nest/canvas-nest-nomobile.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+
+  <canvas id="evanyou"></canvas>
+  <style>
+    #evanyou {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      z-index: -1;
+    }
+  </style>
+  <script src="/js/evan-you.js"></script>
+
+</body>
+</html>
