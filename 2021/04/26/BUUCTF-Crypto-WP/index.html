@@ -20,12 +20,12 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="MD5题目：e00cf25ad42683b3df678c61f42c6bda flag{admin1} MD5是输入不定长度信息，输出固定长度128-bits的算法。经过程序流程，生成四个32位数据，最后联合起来成为一个128-bits散列。基本方式为，求余、取余、调整长度、与链接变量进行循环运算。得出结果。      是 XOR, AND, OR , NOT 的符号。 password题目：姓名">
+  <meta name="description" content="MD5 题目：e00cf25ad42683b3df678c61f42c6bda flag{admin1} MD5是输入不定长度信息，输出固定长度128-bits的算法。经过程序流程，生成四个32位数据，最后联合起来成为一个128-bits散列。基本方式为，求余、取余、调整长度、与链接变量进行循环运算。得出结果。  F(X,Y,Z) &#x3D; (X) ( )   G(X,Y,Z) &#x3D; (X">
 <meta property="og:type" content="article">
 <meta property="og:title" content="BUUCTF Crypto WP">
 <meta property="og:url" content="http://example.com/2021/04/26/BUUCTF-Crypto-WP/index.html">
 <meta property="og:site_name" content="Liquid&#39;s Blog">
-<meta property="og:description" content="MD5题目：e00cf25ad42683b3df678c61f42c6bda flag{admin1} MD5是输入不定长度信息，输出固定长度128-bits的算法。经过程序流程，生成四个32位数据，最后联合起来成为一个128-bits散列。基本方式为，求余、取余、调整长度、与链接变量进行循环运算。得出结果。      是 XOR, AND, OR , NOT 的符号。 password题目：姓名">
+<meta property="og:description" content="MD5 题目：e00cf25ad42683b3df678c61f42c6bda flag{admin1} MD5是输入不定长度信息，输出固定长度128-bits的算法。经过程序流程，生成四个32位数据，最后联合起来成为一个128-bits散列。基本方式为，求余、取余、调整长度、与链接变量进行循环运算。得出结果。  F(X,Y,Z) &#x3D; (X) ( )   G(X,Y,Z) &#x3D; (X">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://wikimedia.org/api/rest_v1/media/math/render/svg/29bfebad4e7bdd4a2fc1210694eb5664262faecc">
 <meta property="og:image" content="https://wikimedia.org/api/rest_v1/media/math/render/svg/7068038702afd55190f991518f3a9188565f32d0">
@@ -223,51 +223,71 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h2 id="MD5"><a href="#MD5" class="headerlink" title="MD5"></a>MD5</h2><p>题目：e00cf25ad42683b3df678c61f42c6bda</p>
+        <h2 id="md5">MD5</h2>
+<p>题目：e00cf25ad42683b3df678c61f42c6bda</p>
 <p><strong>flag{admin1}</strong></p>
-<p>MD5是输入不定长度信息，输出固定长度128-bits的算法。经过程序流程，生成四个32位数据，最后联合起来成为一个128-bits<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E6%95%A3%E5%88%97">散列</a>。基本方式为，求余、取余、调整长度、与链接变量进行循环运算。得出结果。</p>
-<p><img src="https://wikimedia.org/api/rest_v1/media/math/render/svg/29bfebad4e7bdd4a2fc1210694eb5664262faecc" alt="F(X,Y,Z) = (X\wedge{Y}) \vee (\neg{X} \wedge{Z})"></p>
-<p><img src="https://wikimedia.org/api/rest_v1/media/math/render/svg/7068038702afd55190f991518f3a9188565f32d0" alt="G(X,Y,Z) = (X\wedge{Z}) \vee (Y \wedge \neg{Z})"></p>
-<p><img src="https://wikimedia.org/api/rest_v1/media/math/render/svg/c121ed0510b6ad3ffde9b89cec96ff7552ae9236" alt="H(X,Y,Z) = X \oplus Y \oplus Z"></p>
-<p><img src="https://wikimedia.org/api/rest_v1/media/math/render/svg/2f119366de7d323f5e02b8d12a741968fa9d0f99" alt="I(X,Y,Z) = Y \oplus (X \vee \neg{Z})"></p>
-<p><img src="https://wikimedia.org/api/rest_v1/media/math/render/svg/ed39414f7a4720bbf82749a9fcd3ebb15220ea72" alt="\oplus, \wedge, \vee, \neg"> 是 <em>XOR</em>, <em>AND</em>, <em>OR</em> , <em>NOT</em> 的符号。</p>
-<h2 id="password"><a href="#password" class="headerlink" title="password"></a>password</h2><p>题目：姓名：张三 生日：19900315</p>
+<p>MD5是输入不定长度信息，输出固定长度128-bits的算法。经过程序流程，生成四个32位数据，最后联合起来成为一个128-bits<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/散列">散列</a>。基本方式为，求余、取余、调整长度、与链接变量进行循环运算。得出结果。</p>
+<figure>
+<img src="https://wikimedia.org/api/rest_v1/media/math/render/svg/29bfebad4e7bdd4a2fc1210694eb5664262faecc" alt="F(X,Y,Z) = (X) ( )" /><figcaption aria-hidden="true">F(X,Y,Z) = (X) ( )</figcaption>
+</figure>
+<figure>
+<img src="https://wikimedia.org/api/rest_v1/media/math/render/svg/7068038702afd55190f991518f3a9188565f32d0" alt="G(X,Y,Z) = (X) (Y )" /><figcaption aria-hidden="true">G(X,Y,Z) = (X) (Y )</figcaption>
+</figure>
+<figure>
+<img src="https://wikimedia.org/api/rest_v1/media/math/render/svg/c121ed0510b6ad3ffde9b89cec96ff7552ae9236" alt="H(X,Y,Z) = X Y Z" /><figcaption aria-hidden="true">H(X,Y,Z) = X Y Z</figcaption>
+</figure>
+<figure>
+<img src="https://wikimedia.org/api/rest_v1/media/math/render/svg/2f119366de7d323f5e02b8d12a741968fa9d0f99" alt="I(X,Y,Z) = Y (X )" /><figcaption aria-hidden="true">I(X,Y,Z) = Y (X )</figcaption>
+</figure>
+<p><img src="https://wikimedia.org/api/rest_v1/media/math/render/svg/ed39414f7a4720bbf82749a9fcd3ebb15220ea72" alt=", , , " /> 是 <em>XOR</em>, <em>AND</em>, <em>OR</em> , <em>NOT</em> 的符号。</p>
+<h2 id="password">password</h2>
+<p>题目：姓名：张三 生日：19900315</p>
 <p><strong>flag{zs19900315}</strong></p>
 <p>可能是大多数人的密码都是姓名缩写加生日</p>
-<h2 id="Unencode"><a href="#Unencode" class="headerlink" title="Unencode"></a>Unencode</h2><p>题目：</p>
+<h2 id="unencode">Unencode</h2>
+<p>题目：</p>
 <p><strong>flag{dsdasdsa99877LLLKK}</strong></p>
 <p><em>Uuencode</em>将输入文本以每三个字节为单位进行编码，如果最后剩下的资料少于三个字节，不够的部份用零补齐。三个字节共有24个Bit，以6-bit为单位分为4个组，每个组以十进制来表示所出现的字节的数值。这个数值只会落在0到63之间。然后将每个数加上32，所产生的结果刚好落在ASCII字符集中可打印字符（32-空白…95-底线）的范围之中。</p>
 <p><a target="_blank" rel="noopener" href="http://blog.chacuo.net/753.html">uuencode编码算法</a></p>
-<h2 id="URL编码"><a href="#URL编码" class="headerlink" title="URL编码"></a>URL编码</h2><p>题目：%66%6c%61%67%7b%61%6e%64%20%31%3d%31%7d</p>
+<h2 id="url编码">URL编码</h2>
+<p>题目：%66%6c%61%67%7b%61%6e%64%20%31%3d%31%7d</p>
 <p><strong>flag{and 1=1}</strong></p>
 <p>这种编码是在特殊字符hex的基础上，在每个字符前置一个%。所以在编码和解码的过程中，<strong>只需要关注%，连带着%的三个字符对应着明文中的一个字符</strong>。</p>
-<h2 id="摩斯"><a href="#摩斯" class="headerlink" title="摩斯"></a>摩斯</h2><p>题目：… .-… — …- . -.– — …-</p>
+<h2 id="摩斯">摩斯</h2>
+<p>题目：… .-… — …- . -.-- — …-</p>
 <p><strong>flag{ILOVEYOU}</strong></p>
-<p><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/%E5%9B%BD%E9%99%85%E6%91%A9%E5%B0%94%E6%96%AF%E7%94%B5%E7%A0%81.svg/315px-%E5%9B%BD%E9%99%85%E6%91%A9%E5%B0%94%E6%96%AF%E7%94%B5%E7%A0%81.svg.png" alt="img"></p>
-<h2 id="一眼就解密"><a href="#一眼就解密" class="headerlink" title="一眼就解密"></a>一眼就解密</h2><p>题目：ZmxhZ3tUSEVfRkxBR19PRl9USElTX1NUUklOR30=</p>
+<figure>
+<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/%E5%9B%BD%E9%99%85%E6%91%A9%E5%B0%94%E6%96%AF%E7%94%B5%E7%A0%81.svg/315px-%E5%9B%BD%E9%99%85%E6%91%A9%E5%B0%94%E6%96%AF%E7%94%B5%E7%A0%81.svg.png" alt="img" /><figcaption aria-hidden="true">img</figcaption>
+</figure>
+<h2 id="一眼就解密">一眼就解密</h2>
+<p>题目：ZmxhZ3tUSEVfRkxBR19PRl9USElTX1NUUklOR30=</p>
 <p><strong>flag{THE_FLAG_OF_THIS_STRING}</strong></p>
 <p>base64编码</p>
 <p><strong>base三种编码的分辨方法</strong></p>
-<p>首先看有没有符号，base64和base32都以’=‘作为空白补足符符号，如果结尾没有’=’有可能是base16。如果出现了+和/，那么一定是base64。</p>
+<p>首先看有没有符号，base64和base32都以’=‘作为空白补足符符号，如果结尾没有’='有可能是base16。如果出现了+和/，那么一定是base64。</p>
 <p>然后看大小写字母，如果有大写有小写就一定是base64。如果全是大写的情况就看具体字母有没有F之后的字母出现，因为base16就是16进制，字母部分只到F。</p>
 <p>当然这个base32的数字部分只有2-7，不过数字一般不好判断，所以这里不推荐用数字进行判断。</p>
 <p>最后基本上就可以判断出来了，实在不行就拿去在线网站挨个方式解码，也不麻烦。</p>
-<h2 id="看我回旋踢"><a href="#看我回旋踢" class="headerlink" title="看我回旋踢"></a>看我回旋踢</h2><p>题目：synt{5pq1004q-86n5-46q8-o720-oro5on0417r1}</p>
+<h2 id="看我回旋踢">看我回旋踢</h2>
+<p>题目：synt{5pq1004q-86n5-46q8-o720-oro5on0417r1}</p>
 <p><strong>flag{5cd1004d-86a5-46d8-b720-beb5ba0417e1}</strong></p>
 <p>凯撒密码，密文中的synt是很典型的偏移量为13的凯撒密码</p>
-<h2 id="变异凯撒"><a href="#变异凯撒" class="headerlink" title="变异凯撒"></a>变异凯撒</h2><p>题目：加密密文：afZ_r9VYfScOeO_UL^RWUc 格式：flag{ }</p>
+<h2 id="变异凯撒">变异凯撒</h2>
+<p>题目：加密密文：afZ_r9VYfScOeO_UL^RWUc 格式：flag{ }</p>
 <p><strong>flag{Caesar_variation}</strong></p>
 <p>先用普通凯撒做，结果为空</p>
 <p>因为知道格式为<code>flag&#123;</code> 观察前四位，对应的偏移量为5、6、7、8、9，猜测每移动一位偏移量就加一</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">s = <span class="string">&#x27;afZ_r9VYfScOeO_UL^RWUc&#x27;</span></span><br><span class="line">flag = <span class="string">&#x27;&#x27;</span></span><br><span class="line">offset = <span class="number">5</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> s:</span><br><span class="line">	flag += <span class="built_in">str</span>(<span class="built_in">chr</span>(<span class="built_in">ord</span>(i) + offset))</span><br><span class="line">	offset += <span class="number">1</span></span><br><span class="line"><span class="built_in">print</span> (flag)</span><br></pre></td></tr></table></figure>
-
-<h2 id="Quoted-printable"><a href="#Quoted-printable" class="headerlink" title="Quoted-printable"></a>Quoted-printable</h2><p>题目：=E9=82=A3=E4=BD=A0=E4=B9=9F=E5=BE=88=E6=A3=92=E5=93=A6</p>
+<h2 id="quoted-printable">Quoted-printable</h2>
+<p>题目：=E9=82=A3=E4=BD=A0=E4=B9=9F=E5=BE=88=E6=A3=92=E5=93=A6</p>
 <p><strong>flag{那你也很棒哦}</strong></p>
 <p>hex编码</p>
-<h2 id="Rabbit"><a href="#Rabbit" class="headerlink" title="Rabbit"></a>Rabbit</h2><p>题目：U2FsdGVkX1/+ydnDPowGbjjJXhZxm2MP2AgI</p>
+<h2 id="rabbit">Rabbit</h2>
+<p>题目：U2FsdGVkX1/+ydnDPowGbjjJXhZxm2MP2AgI</p>
 <p><strong>flag{Cute_Rabbit}</strong></p>
 <p>Rabbit 是一种高速流密码，于2003 年在FSE 研讨会上首次提出。 Rabbit 使用一个128 位密钥和一个64 位初始化向量。 该加密算法的核心组件是一个位流生成器，该流生成器每次迭代都会加密128 个消息位。 Rabbit 也是一种对称加密算法。</p>
-<h2 id="篱笆墙的影子"><a href="#篱笆墙的影子" class="headerlink" title="篱笆墙的影子"></a>篱笆墙的影子</h2><p>题目：felhaagv{ewtehtehfilnakgw}</p>
+<h2 id="篱笆墙的影子">篱笆墙的影子</h2>
+<p>题目：felhaagv{ewtehtehfilnakgw}</p>
 <p><strong>flag{wethinkwehavetheflag}</strong></p>
 <p>栅栏密码</p>
 <p>观察可以发现<code>felhaagv&#123;ewtehtehfilnakgw&#125;</code>，<code>f</code>和<code>l</code>的下标差为2，总字符数为26，所以密钥即栅栏的长度为13</p>
@@ -355,7 +375,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#MD5"><span class="nav-number">1.</span> <span class="nav-text">MD5</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#password"><span class="nav-number">2.</span> <span class="nav-text">password</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Unencode"><span class="nav-number">3.</span> <span class="nav-text">Unencode</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#URL%E7%BC%96%E7%A0%81"><span class="nav-number">4.</span> <span class="nav-text">URL编码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%91%A9%E6%96%AF"><span class="nav-number">5.</span> <span class="nav-text">摩斯</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E7%9C%BC%E5%B0%B1%E8%A7%A3%E5%AF%86"><span class="nav-number">6.</span> <span class="nav-text">一眼就解密</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9C%8B%E6%88%91%E5%9B%9E%E6%97%8B%E8%B8%A2"><span class="nav-number">7.</span> <span class="nav-text">看我回旋踢</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%98%E5%BC%82%E5%87%AF%E6%92%92"><span class="nav-number">8.</span> <span class="nav-text">变异凯撒</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Quoted-printable"><span class="nav-number">9.</span> <span class="nav-text">Quoted-printable</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Rabbit"><span class="nav-number">10.</span> <span class="nav-text">Rabbit</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AF%B1%E7%AC%86%E5%A2%99%E7%9A%84%E5%BD%B1%E5%AD%90"><span class="nav-number">11.</span> <span class="nav-text">篱笆墙的影子</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#md5"><span class="nav-number">1.</span> <span class="nav-text">MD5</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#password"><span class="nav-number">2.</span> <span class="nav-text">password</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#unencode"><span class="nav-number">3.</span> <span class="nav-text">Unencode</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#url%E7%BC%96%E7%A0%81"><span class="nav-number">4.</span> <span class="nav-text">URL编码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%91%A9%E6%96%AF"><span class="nav-number">5.</span> <span class="nav-text">摩斯</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E7%9C%BC%E5%B0%B1%E8%A7%A3%E5%AF%86"><span class="nav-number">6.</span> <span class="nav-text">一眼就解密</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9C%8B%E6%88%91%E5%9B%9E%E6%97%8B%E8%B8%A2"><span class="nav-number">7.</span> <span class="nav-text">看我回旋踢</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%98%E5%BC%82%E5%87%AF%E6%92%92"><span class="nav-number">8.</span> <span class="nav-text">变异凯撒</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#quoted-printable"><span class="nav-number">9.</span> <span class="nav-text">Quoted-printable</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#rabbit"><span class="nav-number">10.</span> <span class="nav-text">Rabbit</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AF%B1%E7%AC%86%E5%A2%99%E7%9A%84%E5%BD%B1%E5%AD%90"><span class="nav-number">11.</span> <span class="nav-text">篱笆墙的影子</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
