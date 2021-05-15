@@ -369,7 +369,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-04 14:53:52" itemprop="dateModified" datetime="2021-05-04T14:53:52+08:00">2021-05-04</time>
+                <time title="修改时间：2021-05-15 23:59:55" itemprop="dateModified" datetime="2021-05-15T23:59:55+08:00">2021-05-15</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -559,6 +559,50 @@
 <p><strong>P</strong>型半导体：以<strong>空穴</strong>为主要载流子</p>
 <p><strong>N</strong>型半导体：以<strong>电子</strong>为主要载流子</p>
 <h3 id="二极管整流电路">5.2 二极管整流电路</h3>
+<h2 id="第6章-晶体管放大电路基础">第6章 晶体管放大电路基础</h2>
+<h3 id="放大电路的基本概念">6.1 放大电路的基本概念</h3>
+<p>放大电路是一个将<strong>直流电源能量</strong>转化为<strong>信号能量</strong>的装置，其中<strong>输入信号是控制量</strong>。</p>
+<h3 id="双极性晶体三极管及其电路模型">6.2 双极性晶体三极管及其电路模型</h3>
+<h4 id="晶体管基本结构">6.2.1 晶体管基本结构</h4>
+<p>发射区+基区+集电区</p>
+<p>发射极（E）+基极（B）+集电极（C）</p>
+<p>发射结+集电结 NPN/PNP（书中以NPN为例）</p>
+<figure>
+<img src="https://pic4.zhimg.com/80/v2-c1e7c35eb3fb0d7a528408162f61777b_720w.png" alt="img" /><figcaption aria-hidden="true">img</figcaption>
+</figure>
+<h4 id="晶体管电流分配及放大原理">6.2.2 晶体管电流分配及放大原理</h4>
+<p>​ $I_E = I_C + I_B $</p>
+<p>晶体管所谓的“电流放大作用”，不是将小电流 <span class="math inline">\(I_B\)</span> 放大成大电流$ I_C$ ，而是以小电流 <span class="math inline">\(I_B\)</span> 的微小电流变化，去控制比它大十几倍的大电流$ I_C$ 的变化，器件所需的能量由为晶体管提供偏置的直流电源提供 (<strong>能量不能产生，只能提供</strong>)。</p>
+<p>所以说晶体管的电流放大作用实际上是一种<strong>控制作用</strong>。</p>
+<h4 id="晶体管的特性曲线">6.2.3 晶体管的特性曲线</h4>
+<p><strong>输出特性曲线</strong>：</p>
+<figure>
+<img src="https://www.dgxue.com/wp-content/uploads/2014/03/4.jpg" alt="三极管输入特性曲线" /><figcaption aria-hidden="true">三极管输入特性曲线</figcaption>
+</figure>
+<ol start="0" type="1">
+<li>关于正偏和反偏的概念：
+<ul>
+<li>电流由N流向P就是反偏，电流由P流向N就是正偏</li>
+<li>对于集电极，反偏就是通，正偏就是不通</li>
+<li>对于发射极，正偏就是通，反偏就是不通</li>
+</ul></li>
+<li>放大区：发射结正偏，集电结反偏</li>
+<li>截至区：发射结集电结均反偏</li>
+<li>饱和区：发射结集电结均正偏</li>
+</ol>
+<h4 id="晶体管的主要参数">6.2.4 晶体管的主要参数</h4>
+<h4 id="晶体管的大信号电路模型">6.2.5 晶体管的大信号电路模型</h4>
+<h3 id="晶体管放大电路">6.3 晶体管放大电路</h3>
+<h4 id="共发射极放大电路">6.3.1 共发射极放大电路</h4>
+<p>电路图：</p>
+<figure>
+<img src="https://pic2.zhimg.com/80/v2-b7beafb33885afaf904e630957889c01_720w.jpg" alt="img" /><figcaption aria-hidden="true">img</figcaption>
+</figure>
+<p>简化版：</p>
+<figure>
+<img src="https://pic1.zhimg.com/80/v2-208c3b9bc720530035c313f653298b04_720w.jpg" alt="img" /><figcaption aria-hidden="true">img</figcaption>
+</figure>
+<p><strong>电容</strong>起到了“<strong>隔交通直</strong>”的作用。</p>
 
       
     </div>
