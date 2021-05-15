@@ -369,7 +369,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-15 23:59:55" itemprop="dateModified" datetime="2021-05-15T23:59:55+08:00">2021-05-15</time>
+                <time title="修改时间：2021-05-16 00:46:27" itemprop="dateModified" datetime="2021-05-16T00:46:27+08:00">2021-05-16</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -594,6 +594,7 @@
 <h4 id="晶体管的大信号电路模型">6.2.5 晶体管的大信号电路模型</h4>
 <h3 id="晶体管放大电路">6.3 晶体管放大电路</h3>
 <h4 id="共发射极放大电路">6.3.1 共发射极放大电路</h4>
+<p><strong>输入回路</strong>和<strong>输出回路</strong>的<strong>公共端</strong>在<strong>发射极</strong>。</p>
 <p>电路图：</p>
 <figure>
 <img src="https://pic2.zhimg.com/80/v2-b7beafb33885afaf904e630957889c01_720w.jpg" alt="img" /><figcaption aria-hidden="true">img</figcaption>
@@ -602,7 +603,32 @@
 <figure>
 <img src="https://pic1.zhimg.com/80/v2-208c3b9bc720530035c313f653298b04_720w.jpg" alt="img" /><figcaption aria-hidden="true">img</figcaption>
 </figure>
-<p><strong>电容</strong>起到了“<strong>隔交通直</strong>”的作用。</p>
+<p><strong>电容</strong>起到了“<strong>隔交通直</strong>”的作用。滤去直流分量，还原正弦信号。</p>
+<p><span class="math inline">\(R_B\)</span> 和 <span class="math inline">\(R_C\)</span> 上的电流均由直流电源 <span class="math inline">\(U_{CC}\)</span> 发出，也就是说，其实基极的大部分电流，也是由直流电源提供的，但是基极电流和集电极电流数值大小上有很大的区别，这就取决于<span class="math inline">\(R_B\)</span> 和 <span class="math inline">\(R_C\)</span> 的大小关系，也就是所谓的<strong>静态工作点</strong>，如果选取不当就很有可能造成信号的失真，即正弦波由于基准（由基极直流电流决定）没有找好，导致过高或过低到达了饱和区或截至区以至于不能显示。</p>
+<h4 id="放大电路的基本分析方法">6.3.2 放大电路的基本分析方法</h4>
+<p><strong>静态分析</strong>+<strong>动态分析</strong></p>
+<p><strong>只看直流通路</strong>+<strong>只看交流通路</strong></p>
+<figure>
+<img src="https://pic3.zhimg.com/80/v2-d9769ea49567be0fe6b4888f3dd242aa_720w.jpg" alt="img" /><figcaption aria-hidden="true">img</figcaption>
+</figure>
+<figure>
+<img src="https://pic3.zhimg.com/80/v2-f5a72aba2ca0f0e2aece6ccb6f62940e_720w.jpg" alt="img" /><figcaption aria-hidden="true">img</figcaption>
+</figure>
+<h5 id="静态分析">静态分析</h5>
+<figure>
+<img src="https://pic4.zhimg.com/80/v2-9057d129b3e7f23dde8b564dbcd563e7_720w.png" alt="img" /><figcaption aria-hidden="true">img</figcaption>
+</figure>
+<p>（1）首先采用估算法，利用<img src="https://www.zhihu.com/equation?tex=I_%7BB%7D%3D%5Cfrac%7BU_%7BCC%7D-U_%7BBE%7D%7D%7BR_%7BB%7D%7D" alt="[公式]" />，将 $ I_B<span class="math inline">\(的值先求解出来。当\)</span>U_{BE}&lt;&lt;U_{CC}<span class="math inline">\(时，\)</span>I_B=U_{CC}/R_B$</p>
+<p>（2）再利用晶体管的输出特性曲线，找出在该 <img src="https://www.zhihu.com/equation?tex=I_%7BB%7D" alt="[公式]" /> 。条件下的<img src="https://www.zhihu.com/equation?tex=I_%7BC%7D%3D%5Cbeta+I_%7BB%7D%2BI_%7BCEO%7D%5Capprox%5Cbeta+I_%7BB%7D" alt="[公式]" />和<img src="https://www.zhihu.com/equation?tex=U_%7BCE%7D%3DU_%7BCC%7D-I_%7BC%7DR_%7BC%7D" alt="[公式]" /></p>
+<p>（3）根据 <img src="https://www.zhihu.com/equation?tex=U_%7BCE%7D%3DU_%7BCC%7D-I_%7BC%7DR_%7BC%7D" alt="[公式]" /> 及 <img src="https://www.zhihu.com/equation?tex=I_%7BC%7D%3Df%28U_%7BCE%7D%29%7C_%7BI_%7BB%7D%3D%E5%B8%B8%E6%95%B0%7D" alt="[公式]" /></p>
+<p>（4）找到图中的两个特殊点，当 <img src="https://www.zhihu.com/equation?tex=I_%7BC%7D" alt="[公式]" /> =0时， <img src="https://www.zhihu.com/equation?tex=U_%7BCC%7D%3DU_%7BCE%7D" alt="[公式]" /> ，此点为直线与横坐标的交点；当 <img src="https://www.zhihu.com/equation?tex=U_%7BCE%7D" alt="[公式]" /> =0时， <img src="https://www.zhihu.com/equation?tex=I_%7BCC%7D%3D%5Cfrac%7BU_%7BCC%7D%7D%7BR_%7BC%7D%7D" alt="[公式]" /> ，此点为直线与纵坐标的交点；</p>
+<p>（5）连接上述两个点，就可在输出特性曲线上画出直线。这条直线是在直流通路中得到的，故称为直流负载线。</p>
+<p>（6）直流负载线与由 <img src="https://www.zhihu.com/equation?tex=I_%7BB%7D" alt="[公式]" /> 确定的那条输出特性曲线的交点就是静态工作点 <img src="https://www.zhihu.com/equation?tex=Q" alt="[公式]" /> 。</p>
+<p>（7）将静态工作点 <img src="https://www.zhihu.com/equation?tex=Q" alt="[公式]" /> 分别向横坐标、纵坐标进行投影，在纵坐标上的投影即为集电极电流 <img src="https://www.zhihu.com/equation?tex=I_%7BCQ%7D" alt="[公式]" /> ，在横坐标上的投影即为集-射电压 <img src="https://www.zhihu.com/equation?tex=U_%7BCEQ%7D" alt="[公式]" /> 。</p>
+<p>（8）这条直流负载线的斜率为 <img src="https://www.zhihu.com/equation?tex=tan%5Calpha%3D-%5Cfrac%7B1%7D%7BR_%7BC%7D%7D" alt="[公式]" /> ，即与集电极负载 <img src="https://www.zhihu.com/equation?tex=R_%7BC%7D" alt="[公式]" /> 有关。</p>
+<figure>
+<img src="https://pic4.zhimg.com/80/v2-e3febfd503b7f562c391a48abc74bd03_720w.jpg" alt="img" /><figcaption aria-hidden="true">img</figcaption>
+</figure>
 
       
     </div>
