@@ -17,7 +17,7 @@
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
   <meta name="description" content="一个写字的地方而已">
@@ -369,7 +369,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-16 00:46:27" itemprop="dateModified" datetime="2021-05-16T00:46:27+08:00">2021-05-16</time>
+                <time title="修改时间：2021-05-16 23:01:24" itemprop="dateModified" datetime="2021-05-16T23:01:24+08:00">2021-05-16</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -624,11 +624,13 @@
 <p>（4）找到图中的两个特殊点，当 <img src="https://www.zhihu.com/equation?tex=I_%7BC%7D" alt="[公式]" /> =0时， <img src="https://www.zhihu.com/equation?tex=U_%7BCC%7D%3DU_%7BCE%7D" alt="[公式]" /> ，此点为直线与横坐标的交点；当 <img src="https://www.zhihu.com/equation?tex=U_%7BCE%7D" alt="[公式]" /> =0时， <img src="https://www.zhihu.com/equation?tex=I_%7BCC%7D%3D%5Cfrac%7BU_%7BCC%7D%7D%7BR_%7BC%7D%7D" alt="[公式]" /> ，此点为直线与纵坐标的交点；</p>
 <p>（5）连接上述两个点，就可在输出特性曲线上画出直线。这条直线是在直流通路中得到的，故称为直流负载线。</p>
 <p>（6）直流负载线与由 <img src="https://www.zhihu.com/equation?tex=I_%7BB%7D" alt="[公式]" /> 确定的那条输出特性曲线的交点就是静态工作点 <img src="https://www.zhihu.com/equation?tex=Q" alt="[公式]" /> 。</p>
-<p>（7）将静态工作点 <img src="https://www.zhihu.com/equation?tex=Q" alt="[公式]" /> 分别向横坐标、纵坐标进行投影，在纵坐标上的投影即为集电极电流 <img src="https://www.zhihu.com/equation?tex=I_%7BCQ%7D" alt="[公式]" /> ，在横坐标上的投影即为集-射电压 <img src="https://www.zhihu.com/equation?tex=U_%7BCEQ%7D" alt="[公式]" /> 。</p>
+<p>（7）将静态工作点 <img src="https://www.zhihu.com/equation?tex=Q" alt="[公式]" /> 分别向横坐标、纵坐标进行投影，在纵坐标上的投影即为集电极电流 <img src="https://www.zhihu.com/equation?tex=I_%7BCQ%7D" alt="[公式]" /> ，在横坐标上的投影即为集-射电压 <img src="https://www.zhihu.com/equation?tex=U_%7BCEQ%7D" alt="[公式]" /> （输出电压)。</p>
 <p>（8）这条直流负载线的斜率为 <img src="https://www.zhihu.com/equation?tex=tan%5Calpha%3D-%5Cfrac%7B1%7D%7BR_%7BC%7D%7D" alt="[公式]" /> ，即与集电极负载 <img src="https://www.zhihu.com/equation?tex=R_%7BC%7D" alt="[公式]" /> 有关。</p>
 <figure>
 <img src="https://pic4.zhimg.com/80/v2-e3febfd503b7f562c391a48abc74bd03_720w.jpg" alt="img" /><figcaption aria-hidden="true">img</figcaption>
 </figure>
+<h5 id="动态分析">动态分析</h5>
+<p>目的是：计算电压放大倍数 <img src="https://www.zhihu.com/equation?tex=A_%7Bu%7D" alt="[公式]" /> 、输入电阻 <img src="https://www.zhihu.com/equation?tex=r_%7Bi%7D" alt="[公式]" /> 、输出电阻 <img src="https://www.zhihu.com/equation?tex=r_%7Bo%7D" alt="[公式]" /> 、非线性失真、频率特性等。</p>
 
       
     </div>
@@ -1202,7 +1204,7 @@
   </span>
   <span class="author" itemprop="copyrightHolder">Liquid</span>
 </div>
-  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
   </div>
 <div class="run_time" style=" text-align:center;">
   <span id="timeDate">载入天数...</span><span id="times">载入时分秒...</span>
@@ -1248,7 +1250,7 @@
 <script src="/js/motion.js"></script>
 
 
-<script src="/js/schemes/pisces.js"></script>
+<script src="/js/schemes/muse.js"></script>
 
 
 <script src="/js/next-boot.js"></script>
