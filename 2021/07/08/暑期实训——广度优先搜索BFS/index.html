@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="概述 BFS主要靠队列实现。 有几个必要的结构（一般在全局中定义，可以避免多次传递与修改  用来记录是否当前点是否访问过的Visit[]数组 用来进行向外有序扩散的队列，以及其必要的队首队尾指针，出队入队函数  在BFS的实现函数中，也有几个必要的组成部分：  一个起始点，也就是最先入队的点 标记当前点为已访问 确定脱离循环的条件 出队节点，建立新节点，并基于出对节点对新节">
+<meta property="og:type" content="article">
+<meta property="og:title" content="暑期实训——广度优先搜索BFS">
+<meta property="og:url" content="http://example.com/2021/07/08/%E6%9A%91%E6%9C%9F%E5%AE%9E%E8%AE%AD%E2%80%94%E2%80%94%E5%B9%BF%E5%BA%A6%E4%BC%98%E5%85%88%E6%90%9C%E7%B4%A2BFS/index.html">
+<meta property="og:site_name" content="Liquid&#39;s Blog">
+<meta property="og:description" content="概述 BFS主要靠队列实现。 有几个必要的结构（一般在全局中定义，可以避免多次传递与修改  用来记录是否当前点是否访问过的Visit[]数组 用来进行向外有序扩散的队列，以及其必要的队首队尾指针，出队入队函数  在BFS的实现函数中，也有几个必要的组成部分：  一个起始点，也就是最先入队的点 标记当前点为已访问 确定脱离循环的条件 出队节点，建立新节点，并基于出对节点对新节">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20210708104916477.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20210708104934468.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20210708105220234.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20210708105254255.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20210708105306629.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20210708110151560.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20210708110227294.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20210708110238871.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20210708114625045.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20210708114638964.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20210708114733214.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20210708114744969.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20210708114853102.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20210708114909920.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20210708114926750.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20210708114943435.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20210708115015577.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20210708115030190.png">
+<meta property="article:published_time" content="2021-07-08T02:47:08.000Z">
+<meta property="article:modified_time" content="2021-07-08T03:59:37.057Z">
+<meta property="article:author" content="Liquid">
+<meta property="article:tag" content="算法">
+<meta property="article:tag" content="实训">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20210708104916477.png">
+
+<link rel="canonical" href="http://example.com/2021/07/08/%E6%9A%91%E6%9C%9F%E5%AE%9E%E8%AE%AD%E2%80%94%E2%80%94%E5%B9%BF%E5%BA%A6%E4%BC%98%E5%85%88%E6%90%9C%E7%B4%A2BFS/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>暑期实训——广度优先搜索BFS | Liquid's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="Liquid's Blog" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Liquid's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/07/08/%E6%9A%91%E6%9C%9F%E5%AE%9E%E8%AE%AD%E2%80%94%E2%80%94%E5%B9%BF%E5%BA%A6%E4%BC%98%E5%85%88%E6%90%9C%E7%B4%A2BFS/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Liquid">
+      <meta itemprop="description" content="一个写字的地方而已">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Liquid's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          暑期实训——广度优先搜索BFS
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-07-08 10:47:08 / 修改时间：11:59:37" itemprop="dateCreated datePublished" datetime="2021-07-08T10:47:08+08:00">2021-07-08</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/" itemprop="url" rel="index"><span itemprop="name">数据结构与算法</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="概述">概述</h2>
+<p>BFS主要靠<strong>队列</strong>实现。</p>
+<p><strong>有几个必要的结构（一般在全局中定义，可以避免多次传递与修改</strong></p>
+<ol type="1">
+<li>用来记录是否当前点是否访问过的<strong>Visit[]数组</strong></li>
+<li>用来进行向外有序扩散的<strong>队列</strong>，以及其必要的队首队尾指针，出队入队函数</li>
+</ol>
+<p><strong>在BFS的实现函数中，也有几个必要的组成部分：</strong></p>
+<ol type="1">
+<li>一个起始点，也就是最先入队的点</li>
+<li><strong>标记</strong>当前点为已访问</li>
+<li>确定<strong>脱离循环</strong>的条件</li>
+<li>出队节点，建立新节点，并基于出对节点对新节点进行<strong>相关操作</strong></li>
+<li>题目的其他<strong>限制条件</strong>，比如是否有一些点不能走，用于<strong>剪枝</strong></li>
+<li>对于题目要求的答案的记录，也就是<strong>步长</strong>的记录</li>
+</ol>
+<h2 id="bfs模板">BFS模板</h2>
+<p><strong>队列</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">n</span>&#123;</span></span><br><span class="line">    <span class="keyword">int</span> d;</span><br><span class="line">    <span class="keyword">int</span> level;</span><br><span class="line">&#125;Node;</span><br><span class="line"></span><br><span class="line">Node <span class="built_in">queue</span>[<span class="number">5005</span>];</span><br><span class="line"><span class="keyword">int</span> front=<span class="number">-1</span>, rear=<span class="number">-1</span>;</span><br><span class="line"><span class="keyword">int</span> visit[<span class="number">5005</span>];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">enQueue</span><span class="params">(Node x, Node <span class="built_in">queue</span>[])</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">queue</span>[++rear]=x;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">Node <span class="title">deQueue</span><span class="params">(Node <span class="built_in">queue</span>[])</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    Node x = <span class="built_in">queue</span>[++front];</span><br><span class="line">    <span class="keyword">return</span> x;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>BFS</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">BFS</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">//初始节点入队</span></span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;isStart(arr[i]) &amp;&amp; i&lt;n;i++)&#123;</span><br><span class="line">        arr[i].level=<span class="number">1</span>;</span><br><span class="line">        enQueue(arr[i],<span class="built_in">queue</span>);</span><br><span class="line">        visit[arr[i].num]=<span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 进行BFS循环，向外扩张</span></span><br><span class="line">    <span class="keyword">while</span>(front&lt;rear)&#123;</span><br><span class="line">        Point top;   top = deQueue(<span class="built_in">queue</span>); <span class="comment">//出队节点</span></span><br><span class="line">        <span class="keyword">if</span>(isEnd(top))	<span class="comment">//判断是否结束循环</span></span><br><span class="line">            <span class="keyword">return</span> top.level;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;n;i++)&#123;	<span class="comment">//进行相关操作</span></span><br><span class="line">            <span class="keyword">if</span>(Mat[top.num][i]==<span class="number">1</span> &amp;&amp; visit[arr[i].num] == <span class="number">0</span>)&#123;</span><br><span class="line">                visit[arr[i].num]=<span class="number">1</span>;</span><br><span class="line">                arr[i].level=top.level+<span class="number">1</span>;</span><br><span class="line">                enQueue(arr[i],<span class="built_in">queue</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">-1</span>;	<span class="comment">//没有找到目标值</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="练习题">练习题</h2>
+<h3 id="一维坐标的移动">1. 一维坐标的移动</h3>
+<figure>
+<img src="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20210708104916477.png" alt="image-20210708104916477"><figcaption aria-hidden="true">image-20210708104916477</figcaption>
+</figure>
+<figure>
+<img src="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20210708104934468.png" alt="image-20210708104934468"><figcaption aria-hidden="true">image-20210708104934468</figcaption>
+</figure>
+<h4 id="思路">思路</h4>
+<p>三种操作，从起点到终点。</p>
+<h4 id="代码">代码</h4>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">n</span>&#123;</span></span><br><span class="line">    <span class="keyword">int</span> d;</span><br><span class="line">    <span class="keyword">int</span> level;</span><br><span class="line">&#125;Node;</span><br><span class="line"></span><br><span class="line">Node <span class="built_in">queue</span>[<span class="number">5005</span>];</span><br><span class="line"><span class="keyword">int</span> front=<span class="number">-1</span>, rear=<span class="number">-1</span>;</span><br><span class="line"><span class="keyword">int</span> visit[<span class="number">5005</span>];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">enQueue</span><span class="params">(Node x, Node <span class="built_in">queue</span>[])</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">queue</span>[++rear]=x;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">Node <span class="title">deQueue</span><span class="params">(Node <span class="built_in">queue</span>[])</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    Node x = <span class="built_in">queue</span>[++front];</span><br><span class="line">    <span class="keyword">return</span> x;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> n,start,end;</span><br><span class="line">    <span class="built_in">scanf</span>(<span class="string">&quot;%d%d%d&quot;</span>,&amp;n,&amp;start,&amp;end);</span><br><span class="line">    Node a;     a.d=start,a.level=<span class="number">0</span>;</span><br><span class="line">    enQueue(a,<span class="built_in">queue</span>);</span><br><span class="line">    visit[a.d]=<span class="number">1</span>;</span><br><span class="line">    Node top;   top = deQueue(<span class="built_in">queue</span>);</span><br><span class="line">    <span class="keyword">while</span>(top.d!=end)&#123;</span><br><span class="line">        Node tmp;</span><br><span class="line">        tmp.d = top.d*<span class="number">2</span>, tmp.level = top.level+<span class="number">1</span>;</span><br><span class="line">        <span class="keyword">if</span>(tmp.d &gt;= <span class="number">0</span> &amp;&amp; tmp.d &lt;= n &amp;&amp; visit[tmp.d] == <span class="number">0</span>)&#123;</span><br><span class="line">            visit[tmp.d]=<span class="number">1</span>;</span><br><span class="line">            enQueue(tmp,<span class="built_in">queue</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        tmp.d = top.d+<span class="number">1</span>, tmp.level = top.level+<span class="number">1</span>;</span><br><span class="line">        <span class="keyword">if</span>(tmp.d &gt;= <span class="number">0</span> &amp;&amp; tmp.d &lt;=n &amp;&amp; visit[tmp.d] == <span class="number">0</span>)&#123;</span><br><span class="line">            visit[tmp.d]=<span class="number">1</span>;</span><br><span class="line">            enQueue(tmp,<span class="built_in">queue</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        tmp.d = top.d<span class="number">-1</span>, tmp.level = top.level+<span class="number">1</span>;</span><br><span class="line">        <span class="keyword">if</span>(tmp.d &gt;= <span class="number">0</span> &amp;&amp; tmp.d &lt;= n &amp;&amp; visit[tmp.d] == <span class="number">0</span>)&#123;</span><br><span class="line">            visit[tmp.d]=<span class="number">1</span>;</span><br><span class="line">            enQueue(tmp,<span class="built_in">queue</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        top = deQueue(<span class="built_in">queue</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%d&quot;</span>,top.level);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="仙岛求药">2. 仙岛求药</h3>
+<h4 id="题目">题目</h4>
+<figure>
+<img src="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20210708105220234.png" alt="image-20210708105220234"><figcaption aria-hidden="true">image-20210708105220234</figcaption>
+</figure>
+<figure>
+<img src="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20210708105254255.png" alt="image-20210708105254255"><figcaption aria-hidden="true">image-20210708105254255</figcaption>
+</figure>
+<figure>
+<img src="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20210708105306629.png" alt="image-20210708105306629"><figcaption aria-hidden="true">image-20210708105306629</figcaption>
+</figure>
+<h4 id="思路-1">思路</h4>
+<p>思路与上一题相同，只是从一维变成了二维</p>
+<h4 id="代码-1">代码</h4>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdbool.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">n</span>&#123;</span></span><br><span class="line">    <span class="keyword">int</span> x;</span><br><span class="line">    <span class="keyword">int</span> y;</span><br><span class="line">    <span class="keyword">int</span> level;</span><br><span class="line">&#125;Node;</span><br><span class="line"></span><br><span class="line">Node <span class="built_in">queue</span>[<span class="number">25</span>*<span class="number">25</span>];</span><br><span class="line"><span class="keyword">int</span> front=<span class="number">-1</span>, rear=<span class="number">-1</span>;</span><br><span class="line"><span class="keyword">int</span> visit[<span class="number">25</span>][<span class="number">25</span>];</span><br><span class="line"><span class="keyword">char</span> <span class="built_in">map</span>[<span class="number">25</span>][<span class="number">25</span>];</span><br><span class="line"><span class="keyword">int</span> n,m;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">in</span><span class="params">(<span class="keyword">int</span> x,<span class="keyword">int</span> y)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">return</span> x&gt;=<span class="number">0</span> &amp;&amp; x&lt;m &amp;&amp; y&gt;=<span class="number">0</span> &amp;&amp; y&lt;n;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">enQueue</span><span class="params">(Node x, Node <span class="built_in">queue</span>[])</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">queue</span>[++rear]=x;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">Node <span class="title">deQueue</span><span class="params">(Node <span class="built_in">queue</span>[])</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    Node x = <span class="built_in">queue</span>[++front];</span><br><span class="line">    <span class="keyword">return</span> x;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">int</span> start_x,start_y,end_x,end_y;</span><br><span class="line">    <span class="built_in">scanf</span>(<span class="string">&quot;%d %d&quot;</span>,&amp;m,&amp;n);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;m;i++)&#123;</span><br><span class="line">        <span class="built_in">scanf</span>(<span class="string">&quot;\n&quot;</span>);</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j=<span class="number">0</span>;j&lt;n;j++)&#123;</span><br><span class="line">            <span class="keyword">char</span> tmp;</span><br><span class="line">            <span class="keyword">if</span>(j==n<span class="number">-1</span>)</span><br><span class="line">                <span class="built_in">scanf</span>(<span class="string">&quot;%c&quot;</span>,&amp;tmp);</span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">                <span class="built_in">scanf</span>(<span class="string">&quot;%c &quot;</span>,&amp;tmp);</span><br><span class="line">            <span class="keyword">if</span>(tmp==<span class="string">&#x27;@&#x27;</span>)&#123;</span><br><span class="line">                start_x=i; start_y=j;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span>(tmp==<span class="string">&#x27;*&#x27;</span>)&#123;</span><br><span class="line">                end_x=i; end_y=j;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="built_in">map</span>[i][j]=tmp;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    Node a;     a.x=start_x, a.y=start_y, a.level=<span class="number">0</span>;</span><br><span class="line">    enQueue(a,<span class="built_in">queue</span>);</span><br><span class="line">    visit[a.x][a.y]=<span class="number">1</span>;</span><br><span class="line">    Node top;    top = deQueue(<span class="built_in">queue</span>);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">while</span>((top.x != end_x || top.y != end_y) &amp;&amp; front &lt;= rear)&#123;</span><br><span class="line">        </span><br><span class="line">        Node tmp; </span><br><span class="line">        tmp.level = top.level+<span class="number">1</span>;</span><br><span class="line">        </span><br><span class="line">        tmp.x = top.x+<span class="number">1</span>, tmp.y = top.y; </span><br><span class="line">        <span class="keyword">if</span>(in(tmp.x,tmp.y) &amp;&amp; visit[tmp.x][tmp.y] == <span class="number">0</span> &amp;&amp; <span class="built_in">map</span>[tmp.x][tmp.y] != <span class="string">&#x27;#&#x27;</span>)&#123;</span><br><span class="line">            visit[tmp.x][tmp.y]=<span class="number">1</span>;</span><br><span class="line">            enQueue(tmp,<span class="built_in">queue</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        tmp.x = top.x, tmp.y = top.y+<span class="number">1</span>; </span><br><span class="line">        <span class="keyword">if</span>(in(tmp.x,tmp.y) &amp;&amp; visit[tmp.x][tmp.y] == <span class="number">0</span> &amp;&amp; <span class="built_in">map</span>[tmp.x][tmp.y] != <span class="string">&#x27;#&#x27;</span>)&#123;</span><br><span class="line">            visit[tmp.x][tmp.y]=<span class="number">1</span>;</span><br><span class="line">            enQueue(tmp,<span class="built_in">queue</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        tmp.x = top.x<span class="number">-1</span>, tmp.y = top.y; </span><br><span class="line">        <span class="keyword">if</span>(in(tmp.x,tmp.y) &amp;&amp; visit[tmp.x][tmp.y] == <span class="number">0</span> &amp;&amp; <span class="built_in">map</span>[tmp.x][tmp.y] != <span class="string">&#x27;#&#x27;</span>)&#123;</span><br><span class="line">            visit[tmp.x][tmp.y]=<span class="number">1</span>;</span><br><span class="line">            enQueue(tmp,<span class="built_in">queue</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        tmp.x = top.x, tmp.y = top.y<span class="number">-1</span>; </span><br><span class="line">        <span class="keyword">if</span>(in(tmp.x,tmp.y) &amp;&amp; visit[tmp.x][tmp.y] == <span class="number">0</span> &amp;&amp; <span class="built_in">map</span>[tmp.x][tmp.y] != <span class="string">&#x27;#&#x27;</span>)&#123;</span><br><span class="line">            visit[tmp.x][tmp.y]=<span class="number">1</span>;</span><br><span class="line">            enQueue(tmp,<span class="built_in">queue</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        top = deQueue(<span class="built_in">queue</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span>(front &lt;= rear)</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;%d&quot;</span>,top.level);</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;-1&quot;</span>);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="吃糖的时间">3. 吃糖的时间</h3>
+<h4 id="题目-1">题目</h4>
+<figure>
+<img src="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20210708110151560.png" alt="image-20210708110151560"><figcaption aria-hidden="true">image-20210708110151560</figcaption>
+</figure>
+<figure>
+<img src="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20210708110227294.png" alt="image-20210708110227294"><figcaption aria-hidden="true">image-20210708110227294</figcaption>
+</figure>
+<figure>
+<img src="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20210708110238871.png" alt="image-20210708110238871"><figcaption aria-hidden="true">image-20210708110238871</figcaption>
+</figure>
+<h4 id="思路-2">思路</h4>
+<p>用<strong>邻接表</strong>来储存关系。</p>
+<p>需要注意的是，由于头节点和边界点的类型不同，所以边界点中的`<code>level</code>值无法传递给头节点，所以设置了一个变量<code>level</code>用于传递。</p>
+<p>而且由于第一个进行处理的也是头节点的下标，无法进入队列，所以设置了一个用于类比存储第一个头节点值的边界点变量<code>temp</code>。</p>
+<h4 id="代码-2">代码</h4>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">EdgeNode</span>&#123;</span></span><br><span class="line">    <span class="keyword">int</span> index;</span><br><span class="line">    <span class="keyword">int</span> l;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">EdgeNode</span> *<span class="title">next</span>;</span></span><br><span class="line">&#125;EdgeNode;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">HeadNode</span>&#123;</span></span><br><span class="line">    <span class="keyword">char</span> data;</span><br><span class="line">    EdgeNode *edgeNode;</span><br><span class="line">&#125;HeadNode;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">Graph</span>&#123;</span></span><br><span class="line">    HeadNode arr[<span class="number">100005</span>];</span><br><span class="line">    <span class="keyword">int</span> v;</span><br><span class="line">    <span class="keyword">int</span> e;</span><br><span class="line">&#125;Graph;</span><br><span class="line"></span><br><span class="line">Graph G;</span><br><span class="line"><span class="keyword">int</span> n,p,c,m,level;</span><br><span class="line">EdgeNode *<span class="built_in">queue</span>[<span class="number">1000005</span>];</span><br><span class="line"><span class="keyword">int</span> front=<span class="number">-1</span>, rear=<span class="number">-1</span>;</span><br><span class="line"><span class="keyword">int</span> visit[<span class="number">1000005</span>];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">enQueue</span><span class="params">(EdgeNode *x, EdgeNode *<span class="built_in">queue</span>[])</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">queue</span>[++rear]=x;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">EdgeNode <span class="title">deQueue</span><span class="params">(EdgeNode *<span class="built_in">queue</span>[])</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    EdgeNode *x = <span class="built_in">queue</span>[++front];</span><br><span class="line">    <span class="keyword">return</span> *x;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">build</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">   <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">1</span>;i&lt;=G.v;i++)&#123;</span><br><span class="line">        G.arr[i].data=i;</span><br><span class="line">        G.arr[i].edgeNode=<span class="literal">NULL</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">1</span>;i&lt;=G.e;i++)&#123;</span><br><span class="line">        <span class="keyword">int</span> a,b;</span><br><span class="line">        <span class="built_in">scanf</span>(<span class="string">&quot;%d%d&quot;</span>,&amp;a,&amp;b);</span><br><span class="line">        <span class="keyword">if</span>(a!=b)&#123;</span><br><span class="line">            EdgeNode *temp1=(EdgeNode*)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(EdgeNode));</span><br><span class="line">            EdgeNode *temp2=(EdgeNode*)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(EdgeNode));</span><br><span class="line">            temp1-&gt;index=a; temp1-&gt;l=<span class="number">1</span>; temp1-&gt;next=G.arr[b].edgeNode; G.arr[b].edgeNode=temp1;</span><br><span class="line">            temp2-&gt;index=b; temp2-&gt;l=<span class="number">1</span>; temp2-&gt;next=G.arr[a].edgeNode; G.arr[a].edgeNode=temp2;</span><br><span class="line">        &#125; </span><br><span class="line">    &#125; </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">BFS</span><span class="params">(<span class="keyword">int</span> i)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    visit[i]=<span class="number">1</span>;</span><br><span class="line">    level=<span class="number">1</span>;</span><br><span class="line">    EdgeNode *tmp=(EdgeNode*)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(EdgeNode));  </span><br><span class="line">    tmp-&gt;l=<span class="number">1</span>, tmp-&gt;index=<span class="number">1</span>;</span><br><span class="line">    enQueue(tmp,<span class="built_in">queue</span>);</span><br><span class="line">    EdgeNode *now=(EdgeNode*)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(EdgeNode));</span><br><span class="line">    <span class="keyword">while</span>(front &lt; rear)&#123;</span><br><span class="line">        *now=deQueue(<span class="built_in">queue</span>);</span><br><span class="line">        level = now-&gt;l+<span class="number">1</span>;</span><br><span class="line">        <span class="comment">// printf(&quot;%d %d\n&quot;,now-&gt;index,now-&gt;l);</span></span><br><span class="line">        EdgeNode *<span class="keyword">new</span>=G.arr[now-&gt;index].edgeNode;</span><br><span class="line">        <span class="keyword">while</span>(<span class="keyword">new</span>)&#123;</span><br><span class="line">            <span class="keyword">if</span>(!visit[<span class="keyword">new</span>-&gt;index])&#123;</span><br><span class="line">                <span class="keyword">new</span>-&gt;l=level;</span><br><span class="line">                enQueue(<span class="keyword">new</span>,<span class="built_in">queue</span>);</span><br><span class="line">                visit[<span class="keyword">new</span>-&gt;index]=<span class="number">1</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">new</span>=<span class="keyword">new</span>-&gt;next;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%d&quot;</span>,now-&gt;l+m);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">scanf</span>(<span class="string">&quot;%d%d%d%d&quot;</span>,&amp;n,&amp;p,&amp;c,&amp;m);</span><br><span class="line">    G.v=n,G.e=p;</span><br><span class="line">    build();</span><br><span class="line">    BFS(c);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="奇怪的电梯">4. 奇怪的电梯</h3>
+<h4 id="题目-2">题目</h4>
+<figure>
+<img src="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20210708114625045.png" alt="image-20210708114625045"><figcaption aria-hidden="true">image-20210708114625045</figcaption>
+</figure>
+<figure>
+<img src="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20210708114638964.png" alt="image-20210708114638964"><figcaption aria-hidden="true">image-20210708114638964</figcaption>
+</figure>
+<h4 id="思路-3">思路</h4>
+<p>和一维数组相同</p>
+<h4 id="代码-3">代码</h4>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">n</span>&#123;</span></span><br><span class="line">    <span class="keyword">int</span> d;</span><br><span class="line">    <span class="keyword">int</span> level;</span><br><span class="line">&#125;Node;</span><br><span class="line"></span><br><span class="line">Node <span class="built_in">queue</span>[<span class="number">205</span>];</span><br><span class="line"><span class="keyword">int</span> front=<span class="number">-1</span>, rear=<span class="number">-1</span>;</span><br><span class="line"><span class="keyword">int</span> visit[<span class="number">205</span>];</span><br><span class="line"><span class="keyword">int</span> k[<span class="number">205</span>];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">enQueue</span><span class="params">(Node x, Node <span class="built_in">queue</span>[])</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">queue</span>[++rear]=x;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">Node <span class="title">deQueue</span><span class="params">(Node <span class="built_in">queue</span>[])</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    Node x = <span class="built_in">queue</span>[++front];</span><br><span class="line">    <span class="keyword">return</span> x;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> n,start,end;</span><br><span class="line">    <span class="built_in">scanf</span>(<span class="string">&quot;%d%d%d&quot;</span>,&amp;n,&amp;start,&amp;end);</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">1</span>;i&lt;=n;i++)&#123;</span><br><span class="line">        <span class="built_in">scanf</span>(<span class="string">&quot;%d&quot;</span>,&amp;k[i]);</span><br><span class="line">        <span class="comment">// printf(&quot;%d&quot;,k[i]);</span></span><br><span class="line">    &#125;</span><br><span class="line">        </span><br><span class="line">    Node a;     a.d=start,a.level=<span class="number">0</span>;</span><br><span class="line">    enQueue(a,<span class="built_in">queue</span>);</span><br><span class="line">    visit[a.d]=<span class="number">1</span>;</span><br><span class="line">    Node top;   top = deQueue(<span class="built_in">queue</span>);</span><br><span class="line">    <span class="keyword">while</span>(top.d!=end &amp;&amp; front&lt;=rear)&#123;</span><br><span class="line">        Node tmp;</span><br><span class="line">        tmp.d = top.d+k[top.d], tmp.level = top.level+<span class="number">1</span>;</span><br><span class="line">        <span class="keyword">if</span>(tmp.d &gt;= <span class="number">1</span> &amp;&amp; tmp.d &lt;= n &amp;&amp; visit[tmp.d] == <span class="number">0</span>)&#123;</span><br><span class="line">            visit[tmp.d]=<span class="number">1</span>;</span><br><span class="line">            enQueue(tmp,<span class="built_in">queue</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        tmp.d = top.d-k[top.d], tmp.level = top.level+<span class="number">1</span>;</span><br><span class="line">        <span class="keyword">if</span>(tmp.d &gt;= <span class="number">1</span> &amp;&amp; tmp.d &lt;= n &amp;&amp; visit[tmp.d] == <span class="number">0</span>)&#123;</span><br><span class="line">            visit[tmp.d]=<span class="number">1</span>;</span><br><span class="line">            enQueue(tmp,<span class="built_in">queue</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        top = deQueue(<span class="built_in">queue</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span>(front&lt;=rear)</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;%d&quot;</span>,top.level);</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;-1&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="密码锁">5.密码锁</h3>
+<h4 id="题目-3">题目</h4>
+<figure>
+<img src="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20210708114733214.png" alt="image-20210708114733214"><figcaption aria-hidden="true">image-20210708114733214</figcaption>
+</figure>
+<figure>
+<img src="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20210708114744969.png" alt="image-20210708114744969"><figcaption aria-hidden="true">image-20210708114744969</figcaption>
+</figure>
+<h4 id="思路-4">思路</h4>
+<p>四维空间内的迷宫问题</p>
+<h4 id="代码-4">代码</h4>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdbool.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">n</span>&#123;</span></span><br><span class="line">    <span class="keyword">int</span> x;</span><br><span class="line">    <span class="keyword">int</span> y;</span><br><span class="line">    <span class="keyword">int</span> z;</span><br><span class="line">    <span class="keyword">int</span> t;</span><br><span class="line">    <span class="keyword">int</span> level;</span><br><span class="line">&#125;Node;</span><br><span class="line"></span><br><span class="line">Node <span class="built_in">queue</span>[<span class="number">10000</span>];</span><br><span class="line"><span class="keyword">int</span> front=<span class="number">-1</span>, rear=<span class="number">-1</span>;</span><br><span class="line"><span class="keyword">int</span> visit[<span class="number">10</span>][<span class="number">10</span>][<span class="number">10</span>][<span class="number">10</span>];</span><br><span class="line"><span class="keyword">char</span> <span class="built_in">map</span>[<span class="number">10</span>][<span class="number">10</span>][<span class="number">10</span>][<span class="number">10</span>];</span><br><span class="line"><span class="keyword">int</span> n,m;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">in</span><span class="params">(<span class="keyword">int</span> x,<span class="keyword">int</span> y,<span class="keyword">int</span> z,<span class="keyword">int</span> t)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">return</span> x&gt;=<span class="number">1</span> &amp;&amp; x&lt;=<span class="number">9</span> &amp;&amp; y&gt;=<span class="number">1</span> &amp;&amp; y&lt;=<span class="number">9</span> &amp;&amp; z&gt;=<span class="number">1</span> &amp;&amp; z&lt;=<span class="number">9</span> &amp;&amp; t&gt;=<span class="number">1</span> &amp;&amp; t&lt;=<span class="number">9</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">enQueue</span><span class="params">(Node x, Node <span class="built_in">queue</span>[])</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">queue</span>[++rear]=x;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">Node <span class="title">deQueue</span><span class="params">(Node <span class="built_in">queue</span>[])</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    Node x = <span class="built_in">queue</span>[++front];</span><br><span class="line">    <span class="keyword">return</span> x;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">int</span> start_x,start_y,start_z,start_t0,end_x,end_y,end_z,end_t0;</span><br><span class="line">    <span class="keyword">int</span> start,end;</span><br><span class="line">    <span class="built_in">scanf</span>(<span class="string">&quot;%d%d&quot;</span>,&amp;start,&amp;end);</span><br><span class="line">    start_x=start%<span class="number">10</span>, start_y=start/<span class="number">10</span>%<span class="number">10</span>, start_z=start/<span class="number">100</span>%<span class="number">10</span>, start_t0=start/<span class="number">1000</span>;</span><br><span class="line">    end_x=end%<span class="number">10</span>, end_y=end/<span class="number">10</span>%<span class="number">10</span>, end_z=end/<span class="number">100</span>%<span class="number">10</span>, end_t0=end/<span class="number">1000</span>;</span><br><span class="line">    </span><br><span class="line">    Node a;     a.x=start_x, a.y=start_y, a.z=start_z, a.t=start_t0, a.level=<span class="number">0</span>;</span><br><span class="line">    enQueue(a,<span class="built_in">queue</span>);</span><br><span class="line">    visit[a.x][a.y][a.z][a.t]=<span class="number">1</span>;</span><br><span class="line">    Node top;    top = deQueue(<span class="built_in">queue</span>);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">while</span>((top.x != end_x || top.y != end_y || top.z != end_z || top.t != end_t0) &amp;&amp; front &lt;= rear)&#123;</span><br><span class="line"></span><br><span class="line">        Node tmp; </span><br><span class="line">        tmp.level = top.level+<span class="number">1</span>;</span><br><span class="line">        </span><br><span class="line">        </span><br><span class="line">        tmp.x = top.x+<span class="number">1</span>, tmp.y = top.y, tmp.z=top.z, tmp.t=top.t;</span><br><span class="line">        <span class="keyword">if</span>(tmp.x==<span class="number">10</span>)   tmp.x=<span class="number">1</span>;</span><br><span class="line">        <span class="keyword">if</span>(in(tmp.x,tmp.y,tmp.z,tmp.t) &amp;&amp; visit[tmp.x][tmp.y][tmp.z][tmp.t] == <span class="number">0</span>)&#123;</span><br><span class="line">            visit[tmp.x][tmp.y][tmp.z][tmp.t]=<span class="number">1</span>;</span><br><span class="line">            enQueue(tmp,<span class="built_in">queue</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        </span><br><span class="line">        tmp.x = top.x<span class="number">-1</span>, tmp.y = top.y, tmp.z=top.z, tmp.t=top.t; </span><br><span class="line">        <span class="keyword">if</span>(tmp.x==<span class="number">0</span>)    tmp.x=<span class="number">9</span>;</span><br><span class="line">        <span class="keyword">if</span>(in(tmp.x,tmp.y,tmp.z,tmp.t) &amp;&amp; visit[tmp.x][tmp.y][tmp.z][tmp.t] == <span class="number">0</span>)&#123;</span><br><span class="line">            visit[tmp.x][tmp.y][tmp.z][tmp.t]=<span class="number">1</span>;</span><br><span class="line">            enQueue(tmp,<span class="built_in">queue</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        tmp.x = top.x, tmp.y = top.y+<span class="number">1</span>, tmp.z=top.z, tmp.t=top.t; </span><br><span class="line">        <span class="keyword">if</span>(tmp.y==<span class="number">10</span>)   tmp.y=<span class="number">1</span>;</span><br><span class="line">        <span class="keyword">if</span>(in(tmp.x,tmp.y,tmp.z,tmp.t) &amp;&amp; visit[tmp.x][tmp.y][tmp.z][tmp.t] == <span class="number">0</span>)&#123;</span><br><span class="line">            visit[tmp.x][tmp.y][tmp.z][tmp.t]=<span class="number">1</span>;</span><br><span class="line">            enQueue(tmp,<span class="built_in">queue</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        tmp.x = top.x, tmp.y = top.y<span class="number">-1</span>, tmp.z=top.z, tmp.t=top.t; </span><br><span class="line">        <span class="keyword">if</span>(tmp.y==<span class="number">0</span>)   tmp.y=<span class="number">9</span>;</span><br><span class="line">        <span class="keyword">if</span>(in(tmp.x,tmp.y,tmp.z,tmp.t) &amp;&amp; visit[tmp.x][tmp.y][tmp.z][tmp.t] == <span class="number">0</span>)&#123;</span><br><span class="line">            visit[tmp.x][tmp.y][tmp.z][tmp.t]=<span class="number">1</span>;</span><br><span class="line">            enQueue(tmp,<span class="built_in">queue</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        tmp.x = top.x, tmp.y = top.y, tmp.z=top.z+<span class="number">1</span>, tmp.t=top.t;</span><br><span class="line">        <span class="keyword">if</span>(tmp.z==<span class="number">10</span>)   tmp.z=<span class="number">1</span>;</span><br><span class="line">        <span class="keyword">if</span>(in(tmp.x,tmp.y,tmp.z,tmp.t) &amp;&amp; visit[tmp.x][tmp.y][tmp.z][tmp.t] == <span class="number">0</span>)&#123;</span><br><span class="line">            visit[tmp.x][tmp.y][tmp.z][tmp.t]=<span class="number">1</span>;</span><br><span class="line">            enQueue(tmp,<span class="built_in">queue</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        tmp.x = top.x, tmp.y = top.y, tmp.z=top.z<span class="number">-1</span>, tmp.t=top.t; </span><br><span class="line">        <span class="keyword">if</span>(tmp.z==<span class="number">0</span>)   tmp.z=<span class="number">9</span>;</span><br><span class="line">        <span class="keyword">if</span>(in(tmp.x,tmp.y,tmp.z,tmp.t) &amp;&amp; visit[tmp.x][tmp.y][tmp.z][tmp.t] == <span class="number">0</span>)&#123;</span><br><span class="line">            visit[tmp.x][tmp.y][tmp.z][tmp.t]=<span class="number">1</span>;</span><br><span class="line">            enQueue(tmp,<span class="built_in">queue</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        tmp.x = top.x, tmp.y = top.y, tmp.z=top.z, tmp.t=top.t+<span class="number">1</span>; </span><br><span class="line">        <span class="keyword">if</span>(tmp.t==<span class="number">10</span>)   tmp.t=<span class="number">1</span>;</span><br><span class="line">        <span class="keyword">if</span>(in(tmp.x,tmp.y,tmp.z,tmp.t) &amp;&amp; visit[tmp.x][tmp.y][tmp.z][tmp.t] == <span class="number">0</span>)&#123;</span><br><span class="line">            visit[tmp.x][tmp.y][tmp.z][tmp.t]=<span class="number">1</span>;</span><br><span class="line">            enQueue(tmp,<span class="built_in">queue</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        tmp.x = top.x, tmp.y = top.y, tmp.z=top.z, tmp.t=top.t<span class="number">-1</span>; </span><br><span class="line">        <span class="keyword">if</span>(tmp.x==<span class="number">0</span>)   tmp.x=<span class="number">9</span>;</span><br><span class="line">        <span class="keyword">if</span>(in(tmp.x,tmp.y,tmp.z,tmp.t) &amp;&amp; visit[tmp.x][tmp.y][tmp.z][tmp.t] == <span class="number">0</span>)&#123;</span><br><span class="line">            visit[tmp.x][tmp.y][tmp.z][tmp.t]=<span class="number">1</span>;</span><br><span class="line">            enQueue(tmp,<span class="built_in">queue</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        tmp.x = top.y, tmp.y = top.x, tmp.z=top.z, tmp.t=top.t; </span><br><span class="line">        <span class="keyword">if</span>(in(tmp.x,tmp.y,tmp.z,tmp.t) &amp;&amp; visit[tmp.x][tmp.y][tmp.z][tmp.t] == <span class="number">0</span>)&#123;</span><br><span class="line">            visit[tmp.x][tmp.y][tmp.z][tmp.t]=<span class="number">1</span>;</span><br><span class="line">            enQueue(tmp,<span class="built_in">queue</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        tmp.x = top.x, tmp.y = top.z, tmp.z=top.y, tmp.t=top.t; </span><br><span class="line">        <span class="keyword">if</span>(in(tmp.x,tmp.y,tmp.z,tmp.t) &amp;&amp; visit[tmp.x][tmp.y][tmp.z][tmp.t] == <span class="number">0</span>)&#123;</span><br><span class="line">            visit[tmp.x][tmp.y][tmp.z][tmp.t]=<span class="number">1</span>;</span><br><span class="line">            enQueue(tmp,<span class="built_in">queue</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        tmp.x = top.x, tmp.y = top.y, tmp.z=top.t, tmp.t=top.z; </span><br><span class="line">        <span class="keyword">if</span>(in(tmp.x,tmp.y,tmp.z,tmp.t) &amp;&amp; visit[tmp.x][tmp.y][tmp.z][tmp.t] == <span class="number">0</span>)&#123;</span><br><span class="line">            visit[tmp.x][tmp.y][tmp.z][tmp.t]=<span class="number">1</span>;</span><br><span class="line">            enQueue(tmp,<span class="built_in">queue</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        top = deQueue(<span class="built_in">queue</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span>(front &lt;= rear)</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;%d&quot;</span>,top.level);</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;-1&quot;</span>);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="奶酪">6. 奶酪</h3>
+<h4 id="题目-4">题目</h4>
+<figure>
+<img src="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20210708114853102.png" alt="image-20210708114853102"><figcaption aria-hidden="true">image-20210708114853102</figcaption>
+</figure>
+<figure>
+<img src="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20210708114909920.png" alt="image-20210708114909920"><figcaption aria-hidden="true">image-20210708114909920</figcaption>
+</figure>
+<figure>
+<img src="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20210708114926750.png" alt="image-20210708114926750"><figcaption aria-hidden="true">image-20210708114926750</figcaption>
+</figure>
+<figure>
+<img src="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20210708114943435.png" alt="image-20210708114943435"><figcaption aria-hidden="true">image-20210708114943435</figcaption>
+</figure>
+<figure>
+<img src="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20210708115015577.png" alt="image-20210708115015577"><figcaption aria-hidden="true">image-20210708115015577</figcaption>
+</figure>
+<figure>
+<img src="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20210708115030190.png" alt="image-20210708115030190"><figcaption aria-hidden="true">image-20210708115030190</figcaption>
+</figure>
+<h4 id="思路-5">思路</h4>
+<p>也是基于BFS的思路，用<strong>邻接矩阵</strong>实现。相互联通的洞即为有关系的点。</p>
+<p>需要注意的是，有多个入口的时候，可以采取把所有入口依次入队的操作，其实也是假设有一个虚拟的<strong>原始起点</strong>的思想。</p>
+<p>还有在对于距离的判断函数中，注意要用<code>long long</code>的类型，因为乘积很有可能在<code>int</code>中溢出。以及最后的返回形式，为了保证精度不丢失，不能直接返回<code>int</code>型的<code>x</code>，而比较后再返回比较的结果。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">dist</span><span class="params">(Point a, Point b)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">double</span> x=<span class="built_in">sqrt</span>(((<span class="keyword">long</span> <span class="keyword">long</span>)a.x-b.x) * (a.x-b.x) + ((<span class="keyword">long</span> <span class="keyword">long</span>)a.y-b.y) * (a.y-b.y) + ((<span class="keyword">long</span> <span class="keyword">long</span>)a.z-b.z) * (a.z-b.z));</span><br><span class="line">    <span class="keyword">return</span> x - <span class="number">2</span> * r &lt;= <span class="number">0</span>;    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其实<code>sqrt</code>也会有精度丢失的问题，更好的做法应该是不开根号，直接与 r<sup>2</sup> 进行比较。</p>
+<h4 id="代码-5">代码</h4>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;math.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdbool.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">node</span>&#123;</span></span><br><span class="line">    <span class="keyword">int</span> x;</span><br><span class="line">    <span class="keyword">int</span> y;</span><br><span class="line">    <span class="keyword">int</span> z;</span><br><span class="line">    <span class="keyword">int</span> num;</span><br><span class="line">    <span class="keyword">int</span> level;</span><br><span class="line">&#125;Point;</span><br><span class="line"></span><br><span class="line">Point arr[<span class="number">1005</span>];</span><br><span class="line"><span class="keyword">int</span> Mat[<span class="number">1005</span>][<span class="number">1005</span>];</span><br><span class="line">Point <span class="built_in">queue</span>[<span class="number">100005</span>];</span><br><span class="line"><span class="keyword">int</span> visit[<span class="number">1005</span>];</span><br><span class="line"><span class="keyword">int</span> front=<span class="number">-1</span>,rear=<span class="number">-1</span>;</span><br><span class="line"><span class="keyword">int</span> n,h,r;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">cmp</span><span class="params">(<span class="keyword">const</span> <span class="keyword">void</span>* a, <span class="keyword">const</span> <span class="keyword">void</span> *b)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> ((struct node *)a)-&gt;z-((struct node *)b)-&gt;z;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">dist</span><span class="params">(Point a, Point b)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">double</span> x=<span class="built_in">sqrt</span>(((<span class="keyword">long</span> <span class="keyword">long</span>)a.x-b.x) * (a.x-b.x) + ((<span class="keyword">long</span> <span class="keyword">long</span>)a.y-b.y) * (a.y-b.y) + ((<span class="keyword">long</span> <span class="keyword">long</span>)a.z-b.z) * (a.z-b.z));</span><br><span class="line">    <span class="keyword">return</span> x - <span class="number">2</span> * r &lt;= <span class="number">0</span>;    </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">isStart</span><span class="params">(Point a)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> a.z&lt;=r;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">isEnd</span><span class="params">(Point b)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> b.z&gt;=h-r;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">enQueue</span><span class="params">(Point x, Point <span class="built_in">queue</span>[])</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">queue</span>[++rear]=x;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">Point <span class="title">deQueue</span><span class="params">(Point <span class="built_in">queue</span>[])</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    Point x = <span class="built_in">queue</span>[++front];</span><br><span class="line">    <span class="keyword">return</span> x;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">build</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">scanf</span>(<span class="string">&quot;%d%d%d&quot;</span>,&amp;n,&amp;h,&amp;r);</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;n;i++)&#123;</span><br><span class="line">        <span class="keyword">int</span> x,y,z;</span><br><span class="line">        <span class="built_in">scanf</span>(<span class="string">&quot;%d%d%d&quot;</span>,&amp;x,&amp;y,&amp;z);</span><br><span class="line">        arr[i].x=x; arr[i].y=y; arr[i].z=z; arr[i].num=i;  arr[i].level=<span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    qsort(arr,n,<span class="keyword">sizeof</span>(struct node),cmp);</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;n;i++)</span><br><span class="line">        arr[i].num=i;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;n<span class="number">-1</span>;i++)</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j=i+<span class="number">1</span>;j&lt;n;j++)&#123;</span><br><span class="line">            <span class="keyword">if</span>(dist(arr[i],arr[j]))&#123;</span><br><span class="line">                Mat[i][j]=<span class="number">1</span>; Mat[j][i]=<span class="number">1</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">BFS</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;isStart(arr[i]) &amp;&amp; i&lt;n;i++)&#123;</span><br><span class="line">        arr[i].level=<span class="number">1</span>;</span><br><span class="line">        enQueue(arr[i],<span class="built_in">queue</span>);</span><br><span class="line">        visit[arr[i].num]=<span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">while</span>(front&lt;rear)&#123;</span><br><span class="line">        Point top;   top = deQueue(<span class="built_in">queue</span>);</span><br><span class="line">        <span class="keyword">if</span>(isEnd(top))</span><br><span class="line">            <span class="keyword">return</span> top.level;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;n;i++)&#123;</span><br><span class="line">            <span class="keyword">if</span>(Mat[top.num][i]==<span class="number">1</span> &amp;&amp; visit[arr[i].num] == <span class="number">0</span>)&#123;</span><br><span class="line">                visit[arr[i].num]=<span class="number">1</span>;</span><br><span class="line">                arr[i].level=top.level+<span class="number">1</span>;</span><br><span class="line">                enQueue(arr[i],<span class="built_in">queue</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> t;</span><br><span class="line">    <span class="built_in">scanf</span>(<span class="string">&quot;%d&quot;</span>,&amp;t);</span><br><span class="line">    <span class="keyword">while</span>(t--)&#123;</span><br><span class="line">        <span class="built_in">memset</span>(arr,<span class="number">0</span>,<span class="keyword">sizeof</span>(arr));</span><br><span class="line">        <span class="built_in">memset</span>(Mat,<span class="number">0</span>,<span class="keyword">sizeof</span>(Mat));</span><br><span class="line">        <span class="built_in">memset</span>(visit,<span class="number">0</span>,<span class="keyword">sizeof</span>(visit));</span><br><span class="line">        <span class="built_in">memset</span>(<span class="built_in">queue</span>,<span class="number">0</span>,<span class="keyword">sizeof</span>(<span class="built_in">queue</span>));</span><br><span class="line">        front=rear=<span class="number">-1</span>;</span><br><span class="line">        build();</span><br><span class="line">        <span class="comment">// BFS();</span></span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;%d\n&quot;</span>,BFS());</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E7%AE%97%E6%B3%95/" rel="tag"># 算法</a>
+              <a href="/tags/%E5%AE%9E%E8%AE%AD/" rel="tag"># 实训</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/07/07/%E6%9A%91%E6%9C%9F%E5%AE%9E%E8%AE%AD%E2%80%94%E2%80%94%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E6%90%9C%E7%B4%A2DFS/" rel="prev" title="暑期实训——深度优先搜索DFS">
+      <i class="fa fa-chevron-left"></i> 暑期实训——深度优先搜索DFS
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#bfs%E6%A8%A1%E6%9D%BF"><span class="nav-number">2.</span> <span class="nav-text">BFS模板</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%83%E4%B9%A0%E9%A2%98"><span class="nav-number">3.</span> <span class="nav-text">练习题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E7%BB%B4%E5%9D%90%E6%A0%87%E7%9A%84%E7%A7%BB%E5%8A%A8"><span class="nav-number">3.1.</span> <span class="nav-text">1. 一维坐标的移动</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%80%9D%E8%B7%AF"><span class="nav-number">3.1.1.</span> <span class="nav-text">思路</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81"><span class="nav-number">3.1.2.</span> <span class="nav-text">代码</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%99%E5%B2%9B%E6%B1%82%E8%8D%AF"><span class="nav-number">3.2.</span> <span class="nav-text">2. 仙岛求药</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%A2%98%E7%9B%AE"><span class="nav-number">3.2.1.</span> <span class="nav-text">题目</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%80%9D%E8%B7%AF-1"><span class="nav-number">3.2.2.</span> <span class="nav-text">思路</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81-1"><span class="nav-number">3.2.3.</span> <span class="nav-text">代码</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%90%83%E7%B3%96%E7%9A%84%E6%97%B6%E9%97%B4"><span class="nav-number">3.3.</span> <span class="nav-text">3. 吃糖的时间</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%A2%98%E7%9B%AE-1"><span class="nav-number">3.3.1.</span> <span class="nav-text">题目</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%80%9D%E8%B7%AF-2"><span class="nav-number">3.3.2.</span> <span class="nav-text">思路</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81-2"><span class="nav-number">3.3.3.</span> <span class="nav-text">代码</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A5%87%E6%80%AA%E7%9A%84%E7%94%B5%E6%A2%AF"><span class="nav-number">3.4.</span> <span class="nav-text">4. 奇怪的电梯</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%A2%98%E7%9B%AE-2"><span class="nav-number">3.4.1.</span> <span class="nav-text">题目</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%80%9D%E8%B7%AF-3"><span class="nav-number">3.4.2.</span> <span class="nav-text">思路</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81-3"><span class="nav-number">3.4.3.</span> <span class="nav-text">代码</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AF%86%E7%A0%81%E9%94%81"><span class="nav-number">3.5.</span> <span class="nav-text">5.密码锁</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%A2%98%E7%9B%AE-3"><span class="nav-number">3.5.1.</span> <span class="nav-text">题目</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%80%9D%E8%B7%AF-4"><span class="nav-number">3.5.2.</span> <span class="nav-text">思路</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81-4"><span class="nav-number">3.5.3.</span> <span class="nav-text">代码</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A5%B6%E9%85%AA"><span class="nav-number">3.6.</span> <span class="nav-text">6. 奶酪</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%A2%98%E7%9B%AE-4"><span class="nav-number">3.6.1.</span> <span class="nav-text">题目</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%80%9D%E8%B7%AF-5"><span class="nav-number">3.6.2.</span> <span class="nav-text">思路</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81-5"><span class="nav-number">3.6.3.</span> <span class="nav-text">代码</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Liquid</p>
+  <div class="site-description" itemprop="description">一个写字的地方而已</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">8</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Liquid</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+<div class="run_time" style=" text-align:center;">
+  <span id="timeDate">载入天数...</span><span id="times">载入时分秒...</span>
+  <script>
+    var now = new Date(); 
+    function createtime() { 
+        var grt= new Date("04/21/2021 01:24:31");//此处修改你的建站时间或者网站上线时间 
+        now.setTime(now.getTime()+250); 
+        days = (now - grt ) / 1000 / 60 / 60 / 24; dnum = Math.floor(days); 
+        hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum); hnum = Math.floor(hours); 
+        if(String(hnum).length ==1 ){hnum = "0" + hnum;} minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum); 
+        mnum = Math.floor(minutes); if(String(mnum).length ==1 ){mnum = "0" + mnum;} 
+        seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum); 
+        snum = Math.round(seconds); if(String(snum).length ==1 ){snum = "0" + snum;} 
+        document.getElementById("timeDate").innerHTML = "本站已安全运行 "+dnum+" 天 "; 
+        document.getElementById("times").innerHTML = hnum + " 小时 " + mnum + " 分 " + snum + " 秒"; 
+    } 
+    setInterval("createtime()",250);
+  </script>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script color='0,0,255' opacity='0.5' zIndex='-1' count='99' src="/lib/canvas-nest/canvas-nest-nomobile.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+
+  <canvas id="evanyou"></canvas>
+  <style>
+    #evanyou {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      z-index: -1;
+    }
+  </style>
+  <script src="/js/evan-you.js"></script>
+
+</body>
+</html>
