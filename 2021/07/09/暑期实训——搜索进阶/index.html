@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="概述 不像之前会指定广度搜索或深度搜索，这次需要根据题目要求自己判断选取。 其实图的题归根到底都可以看作是树，那么只需要考虑所需要的是一次到底的深度遍历，还是一层一层的层次遍历。 进一步，其实就是站在每一个结点上，想一想真正重要的是根据这个结点所具有的操作属性向下走，得到一个与特定结点属性相关（如值的累加）的答案，还是专注于结点本身的值的改变，找到目标节点或者层次。如果是前者，那么深度搜索会">
+<meta property="og:type" content="article">
+<meta property="og:title" content="暑期实训————搜索进阶">
+<meta property="og:url" content="http://example.com/2021/07/09/%E6%9A%91%E6%9C%9F%E5%AE%9E%E8%AE%AD%E2%80%94%E2%80%94%E6%90%9C%E7%B4%A2%E8%BF%9B%E9%98%B6/index.html">
+<meta property="og:site_name" content="Liquid&#39;s Blog">
+<meta property="og:description" content="概述 不像之前会指定广度搜索或深度搜索，这次需要根据题目要求自己判断选取。 其实图的题归根到底都可以看作是树，那么只需要考虑所需要的是一次到底的深度遍历，还是一层一层的层次遍历。 进一步，其实就是站在每一个结点上，想一想真正重要的是根据这个结点所具有的操作属性向下走，得到一个与特定结点属性相关（如值的累加）的答案，还是专注于结点本身的值的改变，找到目标节点或者层次。如果是前者，那么深度搜索会">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20210709111111388.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20210709111125867.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20210709111136946.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20210709111801187.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20210709111816730.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20210709112906975.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20210709112919462.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20210709112932893.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20210709114423989.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20210709114438969.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20210709114447941.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20210709114503377.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20210709114513609.png">
+<meta property="article:published_time" content="2021-07-09T03:08:49.000Z">
+<meta property="article:modified_time" content="2021-07-09T03:56:40.805Z">
+<meta property="article:author" content="Liquid">
+<meta property="article:tag" content="算法">
+<meta property="article:tag" content="实训">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20210709111111388.png">
+
+<link rel="canonical" href="http://example.com/2021/07/09/%E6%9A%91%E6%9C%9F%E5%AE%9E%E8%AE%AD%E2%80%94%E2%80%94%E6%90%9C%E7%B4%A2%E8%BF%9B%E9%98%B6/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>暑期实训————搜索进阶 | Liquid's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="Liquid's Blog" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Liquid's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/07/09/%E6%9A%91%E6%9C%9F%E5%AE%9E%E8%AE%AD%E2%80%94%E2%80%94%E6%90%9C%E7%B4%A2%E8%BF%9B%E9%98%B6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Liquid">
+      <meta itemprop="description" content="一个写字的地方而已">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Liquid's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          暑期实训————搜索进阶
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-07-09 11:08:49 / 修改时间：11:56:40" itemprop="dateCreated datePublished" datetime="2021-07-09T11:08:49+08:00">2021-07-09</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/" itemprop="url" rel="index"><span itemprop="name">数据结构与算法</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="概述">概述</h2>
+<p>不像之前会指定广度搜索或深度搜索，这次需要根据题目要求自己判断选取。</p>
+<p>其实图的题归根到底都可以看作是树，那么只需要考虑所需要的是一次到底的<strong>深度遍历</strong>，还是一层一层的<strong>层次遍历</strong>。</p>
+<p>进一步，其实就是站在每一个结点上，想一想真正重要的是根据这个结点所具有的操作属性向下走，得到一个与特定结点属性相关（如值的累加）的答案，还是专注于结点本身的值的改变，找到目标节点或者层次。如果是前者，那么深度搜索会更好，如果是后者，如果不要求最短的话，其实深度搜索和广度搜索都可以，如果要求最短的话，就是广度搜索。</p>
+<h2 id="练习题">练习题</h2>
+<h3 id="超级书架2">1. 超级书架2</h3>
+<h4 id="题目">题目</h4>
+<figure>
+<img src="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20210709111111388.png" alt="image-20210709111111388"><figcaption aria-hidden="true">image-20210709111111388</figcaption>
+</figure>
+<figure>
+<img src="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20210709111125867.png" alt="image-20210709111125867"><figcaption aria-hidden="true">image-20210709111125867</figcaption>
+</figure>
+<figure>
+<img src="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20210709111136946.png" alt="image-20210709111136946"><figcaption aria-hidden="true">image-20210709111136946</figcaption>
+</figure>
+<h4 id="思路">思路</h4>
+<p>用的是深度搜索的框架，其实如果把所有情况的组合看作是一棵<strong>生成树</strong>的话，再每一个节点上其实都有两种选择，就是<strong>选与不选</strong>，进而向下分叉，效果表现在高度和值<code>sum</code>上。</p>
+<p>所以递归终止条件是<code>i == n</code>，再遍历整棵树的过程中储存满足条件的最小<code>ans</code>值。</p>
+<h4 id="代码">代码</h4>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> ans=<span class="number">20000000</span>;</span><br><span class="line"><span class="keyword">int</span> n,b,sum;</span><br><span class="line"><span class="keyword">int</span> arr[<span class="number">25</span>];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">DFS</span><span class="params">(<span class="keyword">int</span> i,<span class="keyword">int</span> sum)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(sum&gt;=b &amp;&amp; sum &lt; ans)</span><br><span class="line">        ans=sum;</span><br><span class="line">    <span class="keyword">if</span>(i == n)</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    DFS(i+<span class="number">1</span>,sum+arr[i]);</span><br><span class="line">    DFS(i+<span class="number">1</span>,sum);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">scanf</span>(<span class="string">&quot;%d%d&quot;</span>,&amp;n,&amp;b);</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;n;i++)</span><br><span class="line">        <span class="built_in">scanf</span>(<span class="string">&quot;%d&quot;</span>,&amp;arr[i]);</span><br><span class="line">    DFS(<span class="number">0</span>,sum);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%d&quot;</span>,ans-b);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="正方形">2. 正方形</h3>
+<h4 id="题目-1">题目</h4>
+<p><img src="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20210709111801187.png"></p>
+<p><img src="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20210709111816730.png"></p>
+<h4 id="思路-1">思路</h4>
+<p>和上一题是同样的思路，依然是一个<strong>选与不选</strong>的问题，但是这题用了一个不同的框架。</p>
+<p>上一题直接用了一个与<strong>二叉树遍历</strong>及其相似的遍历方式，用了两个<code>DFS</code>的递归实现。这一题只用了一次递归，但是多了<code>visit[]</code>数组的辅助记录，这样复杂度会低一些，因为<strong>使用访问数组判断的时候本身就是一个剪枝过程</strong>。</p>
+<p>并且这道题还使用了更多的<strong>剪枝操作</strong>。比如在读取到<code>s</code>也就是总长度时，就进行是否可行的判断，在<code>DFS</code>函数中，也有专门的标记变量<code>flag</code>，如果已经找到了三条边，第四条边自然是可行的，就不用再找，一路返回即可。</p>
+<p>这里对于四条边的寻找方式也比较有意思，最初的想法是循环四遍找到四条边，过程中用访问数组辅助。其实也是可行的。但这里的方法是直接用一次递归实现，然后在递归函数的形参中记录已找到边的条数。</p>
+<h4 id="代码-1">代码</h4>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> n,len,flag=<span class="number">0</span>;</span><br><span class="line"><span class="keyword">int</span> arr[<span class="number">25</span>],visit[<span class="number">25</span>];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">DFS</span><span class="params">(<span class="keyword">int</span> i,<span class="keyword">int</span> sum,<span class="keyword">int</span> time)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(flag)</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    <span class="keyword">if</span>(time==<span class="number">3</span>)&#123;</span><br><span class="line">        flag=<span class="number">1</span>;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span>(sum==len)&#123;</span><br><span class="line">        DFS(<span class="number">0</span>,<span class="number">0</span>,time+<span class="number">1</span>);</span><br><span class="line">        <span class="keyword">return</span> ;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> j=i;j&lt;n;j++)&#123;</span><br><span class="line">        <span class="keyword">if</span>(!visit[j])&#123;</span><br><span class="line">            visit[j]=<span class="number">1</span>;</span><br><span class="line">            DFS(j+<span class="number">1</span>,sum+arr[j],time);</span><br><span class="line">            visit[j]=<span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> s=<span class="number">0</span>;</span><br><span class="line">    <span class="built_in">scanf</span>(<span class="string">&quot;%d&quot;</span>,&amp;n);</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;n;i++)&#123;</span><br><span class="line">        <span class="built_in">scanf</span>(<span class="string">&quot;%d&quot;</span>,&amp;arr[i]);</span><br><span class="line">        s+=arr[i];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span>(s%<span class="number">4</span>)&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;No&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    len=s/<span class="number">4</span>;</span><br><span class="line">    DFS(<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>);</span><br><span class="line">    <span class="keyword">if</span>(flag)</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Yes&quot;</span>);</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;No&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="蒜头君回家">3. 蒜头君回家</h3>
+<h4 id="题目-2">题目</h4>
+<figure>
+<img src="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20210709112906975.png" alt="image-20210709112906975"><figcaption aria-hidden="true">image-20210709112906975</figcaption>
+</figure>
+<figure>
+<img src="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20210709112919462.png" alt="image-20210709112919462"><figcaption aria-hidden="true">image-20210709112919462</figcaption>
+</figure>
+<figure>
+<img src="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20210709112932893.png" alt="image-20210709112932893"><figcaption aria-hidden="true">image-20210709112932893</figcaption>
+</figure>
+<h4 id="思路-2">思路</h4>
+<p>操作上就是最简单的<strong>迷宫操作</strong>。</p>
+<p>但是问题在于，题目要求先找到钥匙，才能到家，而如果采取先找钥匙再从钥匙的位置找家的思路，理论上是可行的，但是随着钥匙数量的增加，复杂度会越来越高，最后爆掉。</p>
+<p>稍微优化一点的做法是，从钥匙出发，同时双线找人和家，然后相加取最小。但是同样的道理，也会爆。</p>
+<p>所以，能不能找到一个，复杂度和钥匙数目无关的算法呢。其实前两个算法会爆的原因在于，对于每一个钥匙，都要单独的几乎广度搜索整个地图，于是钥匙越多复杂度越高，但是如果对于所有的钥匙，都只用广度搜索一次地图，就能避免这种情况了。</p>
+<p>所以这里的做法是，<strong>给访问数组<code>visit[][]</code>多加一维变成<code>visit[][][]</code></strong>，第三维有两个状态，找到了钥匙时候的访问和没找到钥匙时候的访问，找到钥匙时候的访问记录在<code>visit[][][1]</code>中，没有找到的记录在<code>visit[][][0]</code>中。</p>
+<p>由于广度搜索的进队特性，每一个当前的状态都取决于上一个出队的点，所以有些点可能找到了钥匙，而有些没有，所以在每一个点的内部都应该有一个标准变量<code>flag</code>来记录这种状态，找到了就是<code>1</code>没找到就是<code>0</code>。最终成功到家的条件就是，找到了家，并且当前点的状态是找到了钥匙。</p>
+<p>这个方法的优势在于，把所有找钥匙的行为都同时进行了，我在向外扩散搜索的时候，可能有点的先找到了钥匙，那么对于这个找到了钥匙的点，之前访问过的点又变得可以访问了，于是他会从那个找到钥匙的点开始向四周扩散去找家；而对于还没有找到钥匙的点，就继续向外扩散直到找到钥匙。<strong>多线程同时进行</strong>，只用广度搜索一遍地图，自然就不会超时了。</p>
+<h4 id="代码-2">代码</h4>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdbool.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">n</span>&#123;</span></span><br><span class="line">    <span class="keyword">int</span> x;</span><br><span class="line">    <span class="keyword">int</span> y;</span><br><span class="line">    <span class="keyword">int</span> flag;</span><br><span class="line">    <span class="keyword">int</span> level;</span><br><span class="line">&#125;Node;</span><br><span class="line"></span><br><span class="line">Node <span class="built_in">queue</span>[<span class="number">4000000</span>];</span><br><span class="line"><span class="keyword">int</span> front=<span class="number">-1</span>, rear=<span class="number">-1</span>;</span><br><span class="line"><span class="keyword">int</span> visit[<span class="number">2005</span>][<span class="number">2005</span>][<span class="number">2</span>];</span><br><span class="line"><span class="keyword">char</span> <span class="built_in">map</span>[<span class="number">2005</span>][<span class="number">2005</span>];</span><br><span class="line"><span class="keyword">int</span> n,m;</span><br><span class="line"><span class="keyword">int</span> start_x,start_y;</span><br><span class="line"><span class="keyword">int</span> ans=<span class="number">800000000</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">in</span><span class="params">(<span class="keyword">int</span> x,<span class="keyword">int</span> y)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">return</span> x&gt;=<span class="number">0</span> &amp;&amp; x&lt;n &amp;&amp; y&gt;=<span class="number">0</span> &amp;&amp; y&lt;m;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">enQueue</span><span class="params">(Node x, Node <span class="built_in">queue</span>[])</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">queue</span>[++rear]=x;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">Node <span class="title">deQueue</span><span class="params">(Node <span class="built_in">queue</span>[])</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    Node x = <span class="built_in">queue</span>[++front];</span><br><span class="line">    <span class="keyword">return</span> x;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">BFS</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    Node a;     a.x=start_x, a.y=start_y, a.level=<span class="number">0</span>, a.flag=<span class="number">0</span>;</span><br><span class="line">    enQueue(a,<span class="built_in">queue</span>);</span><br><span class="line">    visit[a.x][a.y][a.flag]=<span class="number">1</span>;</span><br><span class="line">    Node top;</span><br><span class="line">    <span class="keyword">while</span>(front &lt; rear)&#123;</span><br><span class="line">        top = deQueue(<span class="built_in">queue</span>);</span><br><span class="line">        <span class="keyword">if</span>(<span class="built_in">map</span>[top.x][top.y]==<span class="string">&#x27;P&#x27;</span>)</span><br><span class="line">            top.flag=<span class="number">1</span>;</span><br><span class="line">        <span class="keyword">if</span>(<span class="built_in">map</span>[top.x][top.y] == <span class="string">&#x27;T&#x27;</span> &amp;&amp; top.flag == <span class="number">1</span>)</span><br><span class="line">            <span class="keyword">return</span> top.level;</span><br><span class="line">        Node tmp; </span><br><span class="line">        tmp.level = top.level+<span class="number">1</span>;    tmp.flag=top.flag;</span><br><span class="line">        </span><br><span class="line">        tmp.x = top.x+<span class="number">1</span>, tmp.y = top.y; </span><br><span class="line">        <span class="keyword">if</span>(in(tmp.x,tmp.y) &amp;&amp; visit[tmp.x][tmp.y][tmp.flag] == <span class="number">0</span> &amp;&amp; <span class="built_in">map</span>[tmp.x][tmp.y] != <span class="string">&#x27;#&#x27;</span>)&#123;</span><br><span class="line">            visit[tmp.x][tmp.y][tmp.flag]=<span class="number">1</span>;</span><br><span class="line">            enQueue(tmp,<span class="built_in">queue</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        tmp.x = top.x, tmp.y = top.y+<span class="number">1</span>; </span><br><span class="line">        <span class="keyword">if</span>(in(tmp.x,tmp.y) &amp;&amp; visit[tmp.x][tmp.y][tmp.flag] == <span class="number">0</span> &amp;&amp; <span class="built_in">map</span>[tmp.x][tmp.y] != <span class="string">&#x27;#&#x27;</span>)&#123;</span><br><span class="line">            visit[tmp.x][tmp.y][tmp.flag]=<span class="number">1</span>;</span><br><span class="line">            enQueue(tmp,<span class="built_in">queue</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        tmp.x = top.x<span class="number">-1</span>, tmp.y = top.y; </span><br><span class="line">        <span class="keyword">if</span>(in(tmp.x,tmp.y) &amp;&amp; visit[tmp.x][tmp.y][tmp.flag] == <span class="number">0</span> &amp;&amp; <span class="built_in">map</span>[tmp.x][tmp.y] != <span class="string">&#x27;#&#x27;</span>)&#123;</span><br><span class="line">            visit[tmp.x][tmp.y][tmp.flag]=<span class="number">1</span>;</span><br><span class="line">            enQueue(tmp,<span class="built_in">queue</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        tmp.x = top.x, tmp.y = top.y<span class="number">-1</span>; </span><br><span class="line">        <span class="keyword">if</span>(in(tmp.x,tmp.y) &amp;&amp; visit[tmp.x][tmp.y][tmp.flag] == <span class="number">0</span> &amp;&amp; <span class="built_in">map</span>[tmp.x][tmp.y] != <span class="string">&#x27;#&#x27;</span>)&#123;</span><br><span class="line">            visit[tmp.x][tmp.y][tmp.flag]=<span class="number">1</span>;</span><br><span class="line">            enQueue(tmp,<span class="built_in">queue</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">build</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">scanf</span>(<span class="string">&quot;%d %d&quot;</span>,&amp;n,&amp;m);</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;n;i++)&#123;</span><br><span class="line">        <span class="built_in">scanf</span>(<span class="string">&quot;\n&quot;</span>);</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j=<span class="number">0</span>;j&lt;m;j++)&#123;</span><br><span class="line">            <span class="keyword">char</span> tmp;</span><br><span class="line">            <span class="keyword">if</span>(j==n<span class="number">-1</span>)</span><br><span class="line">                <span class="built_in">scanf</span>(<span class="string">&quot;%c&quot;</span>,&amp;tmp);</span><br><span class="line">            <span class="keyword">else</span>&#123;</span><br><span class="line">                <span class="built_in">scanf</span>(<span class="string">&quot;%c &quot;</span>,&amp;tmp);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span>(tmp==<span class="string">&#x27;S&#x27;</span>)&#123;</span><br><span class="line">                start_x=i; start_y=j;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="built_in">map</span>[i][j]=tmp;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    build();</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%d&quot;</span>,BFS());</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="数独">4. 数独</h3>
+<h4 id="题目-3">题目</h4>
+<figure>
+<img src="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20210709114423989.png" alt="image-20210709114423989"><figcaption aria-hidden="true">image-20210709114423989</figcaption>
+</figure>
+<figure>
+<img src="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20210709114438969.png" alt="image-20210709114438969"><figcaption aria-hidden="true">image-20210709114438969</figcaption>
+</figure>
+<figure>
+<img src="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20210709114447941.png" alt="image-20210709114447941"><figcaption aria-hidden="true">image-20210709114447941</figcaption>
+</figure>
+<figure>
+<img src="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20210709114503377.png" alt="image-20210709114503377"><figcaption aria-hidden="true">image-20210709114503377</figcaption>
+</figure>
+<figure>
+<img src="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20210709114513609.png" alt="image-20210709114513609"><figcaption aria-hidden="true">image-20210709114513609</figcaption>
+</figure>
+<h4 id="思路-3">思路</h4>
+<p>和前两个题一样的思路，只不过这里不用两次递归也不用辅助访问数组，因为地图本身就可以充当一个访问数组。</p>
+<p>需要注意的是这里的判断条件，行和列都很简单，对于块的判断，这里的做法是<strong>利用整型数除法的特点，找到当前块左上角的元素坐标</strong>。</p>
+<h4 id="代码-3">代码</h4>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdbool.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> flag;</span><br><span class="line"><span class="keyword">int</span> <span class="built_in">map</span>[<span class="number">9</span>][<span class="number">9</span>];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">line</span><span class="params">(<span class="keyword">int</span> i,<span class="keyword">int</span> j)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> x=<span class="number">0</span>;x&lt;<span class="number">9</span>;x++)</span><br><span class="line">        <span class="keyword">if</span>(<span class="built_in">map</span>[x][j]==<span class="built_in">map</span>[i][j] &amp;&amp; i!=x)</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> y=<span class="number">0</span>;y&lt;<span class="number">9</span>;y++)</span><br><span class="line">        <span class="keyword">if</span>(<span class="built_in">map</span>[i][y]==<span class="built_in">map</span>[i][j] &amp;&amp; j!=y)</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">nine</span><span class="params">(<span class="keyword">int</span> i,<span class="keyword">int</span> j)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> x=i/<span class="number">3</span>,y=j/<span class="number">3</span>;</span><br><span class="line">    x*=<span class="number">3</span>,y*=<span class="number">3</span>;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> m=x;m&lt;x+<span class="number">3</span>;m++)</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> n=y;n&lt;y+<span class="number">3</span>;n++)</span><br><span class="line">            <span class="keyword">if</span>(<span class="built_in">map</span>[m][n]==<span class="built_in">map</span>[i][j] &amp;&amp; (m != i || n != j))</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">DFS</span><span class="params">(<span class="keyword">int</span> i,<span class="keyword">int</span> j)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(i&gt;<span class="number">8</span> &amp;&amp; j&gt;<span class="number">8</span>)&#123;</span><br><span class="line">        flag=<span class="number">1</span>;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span>(flag)</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span>(<span class="built_in">map</span>[i][j]==<span class="number">0</span>)&#123;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> k=<span class="number">1</span>;k&lt;=<span class="number">9</span>;k++)&#123;</span><br><span class="line">            <span class="built_in">map</span>[i][j]=k;</span><br><span class="line">            <span class="keyword">if</span>(line(i,j) &amp;&amp; nine(i,j))&#123;</span><br><span class="line">                <span class="keyword">if</span>(j!=<span class="number">8</span>)</span><br><span class="line">                    DFS(i,j+<span class="number">1</span>);</span><br><span class="line">                <span class="keyword">else</span></span><br><span class="line">                    DFS(i+<span class="number">1</span>,<span class="number">0</span>);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span>(flag)</span><br><span class="line">                <span class="keyword">return</span>;</span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">                <span class="built_in">map</span>[i][j]=<span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(j!=<span class="number">8</span>)</span><br><span class="line">            DFS(i,j+<span class="number">1</span>);</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            DFS(i+<span class="number">1</span>,<span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;<span class="number">9</span>;i++)&#123;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j=<span class="number">0</span>;j&lt;<span class="number">9</span>;j++)&#123;</span><br><span class="line">            <span class="keyword">char</span> tmp;</span><br><span class="line">            <span class="built_in">scanf</span>(<span class="string">&quot;%c &quot;</span>,&amp;tmp);</span><br><span class="line">            <span class="keyword">if</span>(tmp&lt;=<span class="string">&#x27;9&#x27;</span> &amp;&amp; tmp&gt;=<span class="string">&#x27;0&#x27;</span>)</span><br><span class="line">                <span class="built_in">map</span>[i][j]=tmp-<span class="string">&#x27;0&#x27;</span>;</span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">                <span class="built_in">map</span>[i][j]=<span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    DFS(<span class="number">0</span>,<span class="number">0</span>);</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;<span class="number">9</span>;i++)&#123;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j=<span class="number">0</span>;j&lt;<span class="number">9</span>;j++)&#123;</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">&quot;%d &quot;</span>,<span class="built_in">map</span>[i][j]);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E7%AE%97%E6%B3%95/" rel="tag"># 算法</a>
+              <a href="/tags/%E5%AE%9E%E8%AE%AD/" rel="tag"># 实训</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/07/08/%E6%9A%91%E6%9C%9F%E5%AE%9E%E8%AE%AD%E2%80%94%E2%80%94%E5%B9%BF%E5%BA%A6%E4%BC%98%E5%85%88%E6%90%9C%E7%B4%A2BFS/" rel="prev" title="暑期实训——广度优先搜索BFS">
+      <i class="fa fa-chevron-left"></i> 暑期实训——广度优先搜索BFS
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%83%E4%B9%A0%E9%A2%98"><span class="nav-number">2.</span> <span class="nav-text">练习题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%B6%85%E7%BA%A7%E4%B9%A6%E6%9E%B62"><span class="nav-number">2.1.</span> <span class="nav-text">1. 超级书架2</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%A2%98%E7%9B%AE"><span class="nav-number">2.1.1.</span> <span class="nav-text">题目</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%80%9D%E8%B7%AF"><span class="nav-number">2.1.2.</span> <span class="nav-text">思路</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81"><span class="nav-number">2.1.3.</span> <span class="nav-text">代码</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%AD%A3%E6%96%B9%E5%BD%A2"><span class="nav-number">2.2.</span> <span class="nav-text">2. 正方形</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%A2%98%E7%9B%AE-1"><span class="nav-number">2.2.1.</span> <span class="nav-text">题目</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%80%9D%E8%B7%AF-1"><span class="nav-number">2.2.2.</span> <span class="nav-text">思路</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81-1"><span class="nav-number">2.2.3.</span> <span class="nav-text">代码</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%92%9C%E5%A4%B4%E5%90%9B%E5%9B%9E%E5%AE%B6"><span class="nav-number">2.3.</span> <span class="nav-text">3. 蒜头君回家</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%A2%98%E7%9B%AE-2"><span class="nav-number">2.3.1.</span> <span class="nav-text">题目</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%80%9D%E8%B7%AF-2"><span class="nav-number">2.3.2.</span> <span class="nav-text">思路</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81-2"><span class="nav-number">2.3.3.</span> <span class="nav-text">代码</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B0%E7%8B%AC"><span class="nav-number">2.4.</span> <span class="nav-text">4. 数独</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%A2%98%E7%9B%AE-3"><span class="nav-number">2.4.1.</span> <span class="nav-text">题目</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%80%9D%E8%B7%AF-3"><span class="nav-number">2.4.2.</span> <span class="nav-text">思路</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81-3"><span class="nav-number">2.4.3.</span> <span class="nav-text">代码</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Liquid</p>
+  <div class="site-description" itemprop="description">一个写字的地方而已</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">9</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Liquid</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+<div class="run_time" style=" text-align:center;">
+  <span id="timeDate">载入天数...</span><span id="times">载入时分秒...</span>
+  <script>
+    var now = new Date(); 
+    function createtime() { 
+        var grt= new Date("04/21/2021 01:24:31");//此处修改你的建站时间或者网站上线时间 
+        now.setTime(now.getTime()+250); 
+        days = (now - grt ) / 1000 / 60 / 60 / 24; dnum = Math.floor(days); 
+        hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum); hnum = Math.floor(hours); 
+        if(String(hnum).length ==1 ){hnum = "0" + hnum;} minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum); 
+        mnum = Math.floor(minutes); if(String(mnum).length ==1 ){mnum = "0" + mnum;} 
+        seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum); 
+        snum = Math.round(seconds); if(String(snum).length ==1 ){snum = "0" + snum;} 
+        document.getElementById("timeDate").innerHTML = "本站已安全运行 "+dnum+" 天 "; 
+        document.getElementById("times").innerHTML = hnum + " 小时 " + mnum + " 分 " + snum + " 秒"; 
+    } 
+    setInterval("createtime()",250);
+  </script>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script color='0,0,255' opacity='0.5' zIndex='-1' count='99' src="/lib/canvas-nest/canvas-nest-nomobile.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+
+  <canvas id="evanyou"></canvas>
+  <style>
+    #evanyou {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      z-index: -1;
+    }
+  </style>
+  <script src="/js/evan-you.js"></script>
+
+</body>
+</html>
