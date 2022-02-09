@@ -6,7 +6,7 @@
   <link href="http://example.com/atom.xml" rel="self"/>
   
   <link href="http://example.com/"/>
-  <updated>2021-07-12T03:24:34.714Z</updated>
+  <updated>2022-02-09T14:53:23.335Z</updated>
   <id>http://example.com/</id>
   
   <author>
@@ -15,6 +15,37 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>服务器pytorch环境配置</title>
+    <link href="http://example.com/2021/12/08/%E6%9C%8D%E5%8A%A1%E5%99%A8pytorch%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/"/>
+    <id>http://example.com/2021/12/08/%E6%9C%8D%E5%8A%A1%E5%99%A8pytorch%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/</id>
+    <published>2021-12-08T05:35:58.000Z</published>
+    <updated>2022-02-09T14:53:23.335Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="一安装-anaconda">一、安装 Anaconda</h2><p>可以用 wget 命令下载：</p><blockquote><p>wget <a href="https://mirrors.tuna.tsinghua.edu.cn/anaconda/archive/Anaconda3-5.1.0-Linux-x86_64.sh" class="uri">https://mirrors.tuna.tsinghua.edu.cn/anaconda/archive/Anaconda3-5.1.0-Linux-x86_64.sh</a></p></blockquote><p>安装好后运行</p><blockquote><p>bash Anaconda3-5.1.0-Linux-x86_64.sh</p></blockquote><p>然后就一路yes，最后可能会问你是否是否下载VS Code，这个选no就安装成功了（也有可能不会遇到这个选项）。</p><p>重启服务器后进行验证。</p><p>验证Anaconda是否安装成功，在命令行输入python，若显示python版本后带了Anaconda标识就证明Anaconda安装成功。</p><h3 id="安装出现错误">安装出现错误</h3><p>在输入 python 之后，显示没有找到命令</p><figure><img src="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20211207000315353.png" alt="image-20211207000315353"><figcaption aria-hidden="true">image-20211207000315353</figcaption></figure><p>应该是没有配置环境变量的原因</p><p>对于Linux中配置环境变量，现在网上比较流行的有两种方式：</p><p>将路径追加输入bashrc中，并启用</p><blockquote><p>echo ‘export PATH="~/anaconda2/bin:$PATH"’ &gt;&gt; ~/.bashrc source ~/.bashrc</p></blockquote><p>但是这种方式好像需要root权限，我是普通用户登录的，权限不够</p><p>而且在退出 vim 时，还出现了这样的错误</p><figure><img src="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20211207001539522.png" alt="image-20211207001539522"><figcaption aria-hidden="true">image-20211207001539522</figcaption></figure><p>解决：Type ‘q!’ in place of ‘q’ and press Enter.</p><p>因为没有权限，故采用以下方式:</p><p>export方式,直接输入以下命令</p><blockquote><p>export PATH="/<span class="math inline">\(HOME/anaconda3/bin:\)</span>PATH" export PATH="<span class="math inline">\(PATH:\)</span>​HOME/anaconda/bin"</p></blockquote><p>成功</p><figure><img src="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20211207003523538.png" alt="image-20211207003523538"><figcaption aria-hidden="true">image-20211207003523538</figcaption></figure><p>但是这种方法每次重新连接后环境变量都会失效，故使用：</p><p>控制台输入</p><blockquote><p>vim ~/.bashrc</p></blockquote><p>按 i进入vim编辑，在最后一行添加anaconda的安装路径，</p><blockquote><p>export PATH="/... 你的路径../anaconda3/bin/:$PATH"</p></blockquote><p>按Esc键，再输入 :wq退出</p><p>控制台输入再输入</p><blockquote><p>source ~/.bashrc</p></blockquote><p>这样重新连接后环境变量依然生效</p><h2 id="二创建虚拟环境">二、创建虚拟环境</h2><p>删除创建的环境：conda env remove -n 环境名</p><p>创建环境：conda create -n pytorch python=3.x</p><p>激活环境：conda activate pytorch</p><p>退出环境：source deactivate</p><p>进入base环境：source ~/.bashrc</p><h2 id="三-配置-pytorch">三、 配置 pytorch</h2><p>直接去pytorch官网pytorch.org寻找对应的版本，可以提前查看一下你的服务器的cuda版本，</p><p>cat /usr/local/cuda/version.txt</p><figure><img src="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/20200522121708106.png" alt="img"><figcaption aria-hidden="true">img</figcaption></figure><p>安装好pytorch后，要重启一下服务器。</p><p>然后验证pytorch是否安装成功，输入python后：</p><h3 id="出现错误">出现错误</h3><figure><img src="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20211207071715205.png" alt="image-20211207071715205"><figcaption aria-hidden="true">image-20211207071715205</figcaption></figure><p>关了梯子 try again，还是不行</p><figure><img src="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20211207072059434.png" alt="image-20211207072059434"><figcaption aria-hidden="true">image-20211207072059434</figcaption></figure><p>换用pip指令，失败</p><figure><img src="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20211207072347582.png" alt="image-20211207072347582"><figcaption aria-hidden="true">image-20211207072347582</figcaption></figure><h3 id="解决方法">解决方法</h3><p>更换源</p><p>将配置文件写在<code>~/.condarc</code>中 <code>vim ~/.condarc</code></p><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">channels:</span><br><span class="line">  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main/</span><br><span class="line">  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/</span><br><span class="line">  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/conda-forge/</span><br><span class="line">  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/pytorch/</span><br><span class="line">ssl_verify: true</span><br></pre></td></tr></table></figure><p>成功</p><h3 id="检验方法">检验方法</h3><ul><li>import torch —— 无报错</li><li>print(torch. <strong>version</strong>) ——输出版本号</li></ul>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h2 id=&quot;一安装-anaconda&quot;&gt;一、安装 Anaconda&lt;/h2&gt;
+&lt;p&gt;可以用 wget 命令下载：&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;wget &lt;a href=&quot;https://mirrors.tuna.tsinghua.edu.cn/anacond</summary>
+      
+    
+    
+    
+    <category term="环境配置" scheme="http://example.com/categories/%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/"/>
+    
+    
+    <category term="linux" scheme="http://example.com/tags/linux/"/>
+    
+    <category term="pytorch" scheme="http://example.com/tags/pytorch/"/>
+    
+    <category term="环境配置" scheme="http://example.com/tags/%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/"/>
+    
+  </entry>
   
   <entry>
     <title>暑期集训——启发式搜索</title>

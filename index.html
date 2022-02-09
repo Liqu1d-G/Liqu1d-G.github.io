@@ -158,6 +158,168 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/12/08/%E6%9C%8D%E5%8A%A1%E5%99%A8pytorch%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Liquid">
+      <meta itemprop="description" content="一个写字的地方而已">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Liquid's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/12/08/%E6%9C%8D%E5%8A%A1%E5%99%A8pytorch%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/" class="post-title-link" itemprop="url">服务器pytorch环境配置</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-12-08 13:35:58" itemprop="dateCreated datePublished" datetime="2021-12-08T13:35:58+08:00">2021-12-08</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-02-09 22:53:23" itemprop="dateModified" datetime="2022-02-09T22:53:23+08:00">2022-02-09</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/" itemprop="url" rel="index"><span itemprop="name">环境配置</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="一安装-anaconda">一、安装 Anaconda</h2>
+<p>可以用 wget 命令下载：</p>
+<blockquote>
+<p>wget <a target="_blank" rel="noopener" href="https://mirrors.tuna.tsinghua.edu.cn/anaconda/archive/Anaconda3-5.1.0-Linux-x86_64.sh" class="uri">https://mirrors.tuna.tsinghua.edu.cn/anaconda/archive/Anaconda3-5.1.0-Linux-x86_64.sh</a></p>
+</blockquote>
+<p>安装好后运行</p>
+<blockquote>
+<p>bash Anaconda3-5.1.0-Linux-x86_64.sh</p>
+</blockquote>
+<p>然后就一路yes，最后可能会问你是否是否下载VS Code，这个选no就安装成功了（也有可能不会遇到这个选项）。</p>
+<p>重启服务器后进行验证。</p>
+<p>验证Anaconda是否安装成功，在命令行输入python，若显示python版本后带了Anaconda标识就证明Anaconda安装成功。</p>
+<h3 id="安装出现错误">安装出现错误</h3>
+<p>在输入 python 之后，显示没有找到命令</p>
+<figure>
+<img src="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20211207000315353.png" alt="image-20211207000315353"><figcaption aria-hidden="true">image-20211207000315353</figcaption>
+</figure>
+<p>应该是没有配置环境变量的原因</p>
+<p>对于Linux中配置环境变量，现在网上比较流行的有两种方式：</p>
+<p>将路径追加输入bashrc中，并启用</p>
+<blockquote>
+<p>echo ‘export PATH="~/anaconda2/bin:$PATH"’ &gt;&gt; ~/.bashrc source ~/.bashrc</p>
+</blockquote>
+<p>但是这种方式好像需要root权限，我是普通用户登录的，权限不够</p>
+<p>而且在退出 vim 时，还出现了这样的错误</p>
+<figure>
+<img src="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20211207001539522.png" alt="image-20211207001539522"><figcaption aria-hidden="true">image-20211207001539522</figcaption>
+</figure>
+<p>解决：Type ‘q!’ in place of ‘q’ and press Enter.</p>
+<p>因为没有权限，故采用以下方式:</p>
+<p>export方式,直接输入以下命令</p>
+<blockquote>
+<p>export PATH="/<span class="math inline">\(HOME/anaconda3/bin:\)</span>PATH" export PATH="<span class="math inline">\(PATH:\)</span>​HOME/anaconda/bin"</p>
+</blockquote>
+<p>成功</p>
+<figure>
+<img src="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20211207003523538.png" alt="image-20211207003523538"><figcaption aria-hidden="true">image-20211207003523538</figcaption>
+</figure>
+<p>但是这种方法每次重新连接后环境变量都会失效，故使用：</p>
+<p>控制台输入</p>
+<blockquote>
+<p>vim ~/.bashrc</p>
+</blockquote>
+<p>按 i进入vim编辑，在最后一行添加anaconda的安装路径，</p>
+<blockquote>
+<p>export PATH="/... 你的路径../anaconda3/bin/:$PATH"</p>
+</blockquote>
+<p>按Esc键，再输入 :wq退出</p>
+<p>控制台输入再输入</p>
+<blockquote>
+<p>source ~/.bashrc</p>
+</blockquote>
+<p>这样重新连接后环境变量依然生效</p>
+<h2 id="二创建虚拟环境">二、创建虚拟环境</h2>
+<p>删除创建的环境：conda env remove -n 环境名</p>
+<p>创建环境：conda create -n pytorch python=3.x</p>
+<p>激活环境：conda activate pytorch</p>
+<p>退出环境：source deactivate</p>
+<p>进入base环境：source ~/.bashrc</p>
+<h2 id="三-配置-pytorch">三、 配置 pytorch</h2>
+<p>直接去pytorch官网pytorch.org寻找对应的版本，可以提前查看一下你的服务器的cuda版本，</p>
+<p>cat /usr/local/cuda/version.txt</p>
+<figure>
+<img src="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/20200522121708106.png" alt="img"><figcaption aria-hidden="true">img</figcaption>
+</figure>
+<p>安装好pytorch后，要重启一下服务器。</p>
+<p>然后验证pytorch是否安装成功，输入python后：</p>
+<h3 id="出现错误">出现错误</h3>
+<figure>
+<img src="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20211207071715205.png" alt="image-20211207071715205"><figcaption aria-hidden="true">image-20211207071715205</figcaption>
+</figure>
+<p>关了梯子 try again，还是不行</p>
+<figure>
+<img src="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20211207072059434.png" alt="image-20211207072059434"><figcaption aria-hidden="true">image-20211207072059434</figcaption>
+</figure>
+<p>换用pip指令，失败</p>
+<figure>
+<img src="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20211207072347582.png" alt="image-20211207072347582"><figcaption aria-hidden="true">image-20211207072347582</figcaption>
+</figure>
+<h3 id="解决方法">解决方法</h3>
+<p>更换源</p>
+<p>将配置文件写在<code>~/.condarc</code>中 <code>vim ~/.condarc</code></p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">channels:</span><br><span class="line">  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main/</span><br><span class="line">  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/</span><br><span class="line">  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/conda-forge/</span><br><span class="line">  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/pytorch/</span><br><span class="line">ssl_verify: true</span><br></pre></td></tr></table></figure>
+<p>成功</p>
+<h3 id="检验方法">检验方法</h3>
+<ul>
+<li>import torch —— 无报错</li>
+<li>print(torch. <strong>version</strong>) ——输出版本号</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://example.com/2021/07/12/%E6%9A%91%E6%9C%9F%E9%9B%86%E8%AE%AD%E2%80%94%E2%80%94%E5%90%AF%E5%8F%91%E5%BC%8F%E6%90%9C%E7%B4%A2/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1527,235 +1689,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/04/24/CTF%E7%89%B9%E8%AE%AD%E8%90%A5/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Liquid">
-      <meta itemprop="description" content="一个写字的地方而已">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Liquid's Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/04/24/CTF%E7%89%B9%E8%AE%AD%E8%90%A5/" class="post-title-link" itemprop="url">CTF特训营</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-04-24 00:45:39" itemprop="dateCreated datePublished" datetime="2021-04-24T00:45:39+08:00">2021-04-24</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-03 15:30:21" itemprop="dateModified" datetime="2021-05-03T15:30:21+08:00">2021-05-03</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">读书笔记</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="第18章-crypto概述">第18章 Crypto概述</h2>
-<p><strong>Crypto选手应有的能力</strong>：</p>
-<ol type="1">
-<li>识别能力：识别出密码算法和编码算法</li>
-<li>攻击能力：结合环境联想到特定算法的攻击方法</li>
-<li>分析能力：对未知算法人工分析</li>
-<li>编程能力：编程实现破解算法的程序，并认识到复杂度</li>
-<li>学习能力：快速理解最新文献中的密码攻击并实现</li>
-<li>跨领域能力：Crypto经常多领域结合出现，如Reverse、PWN、Web</li>
-</ol>
-<p><strong>密码学攻击</strong>：</p>
-<ol type="1">
-<li><p>唯密文攻击</p></li>
-<li><p>已知明文攻击</p></li>
-<li><p>选择明文攻击</p></li>
-<li><p>选择密文攻击</p></li>
-</ol>
-<h2 id="第19章-编码">第19章 编码</h2>
-<p>编码（encode）是信息的另一种表达方式，可以解决一些传输问题。 将编码信息转化为原始信息，称之为解码（decode）。</p>
-<h3 id="hex">19.1 hex</h3>
-<p>hex编码就是根据每个字符的ASCII码进行<strong>16进制</strong>的转换。 <strong>一个字符经过编码变成了两个字符</strong>。 还可以作为将字符串转为十进制运算时的中转。</p>
-<h3 id="urlencode">19.2 urlencode</h3>
-<p>这种编码用于浏览器和网站之间的数据交换。可以解决一些特殊字符在传输过程中造成的问题。 这种编码是在特殊字符hex的基础上，在每个字符前置一个%。所以在编码和解码的过程中，<strong>只需要关注%，连带着%的三个字符对应着明文中的一个字符</strong>。</p>
-<h3 id="morsecode">19.3 morsecode</h3>
-<p>“.” 表示短音，“—” 表示长音，“/” 或”空格“表示分隔符。</p>
-<figure>
-<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/%E5%9B%BD%E9%99%85%E6%91%A9%E5%B0%94%E6%96%AF%E7%94%B5%E7%A0%81.svg/315px-%E5%9B%BD%E9%99%85%E6%91%A9%E5%B0%94%E6%96%AF%E7%94%B5%E7%A0%81.svg.png" alt="img"><figcaption aria-hidden="true">img</figcaption>
-</figure>
-<h3 id="jsfuck">19.4 jsfuck</h3>
-<p>仅用六个字符 <strong>()+[]!</strong> 就可以书写任意的JavaScript代码。</p>
-<h3 id="uuencode">19.5 uuencode</h3>
-<p>可以将二进制文件转换为可见字符文本的一种编码。 特征是<strong>范围从32到95，没有小写字母</strong>。</p>
-<blockquote>
-<p><strong>UUencode</strong>是一种二进制到文字的编码！</p>
-<p>它不是MIME编码中一员。最早在unix 邮件系统中使用，全称：Unix-to-Unix encoding。它也是定义了用可打印字符表示二进制文字一种方法，并不是一种新的编码集合。</p>
-<p>Uuencode将输入文本以每三个字节为单位进行编码，如果最后剩下的资料少于三个字节，不够的部份用零补齐。三个字节共有24个Bit，以6-bit为单位分为4个组，每个组以十进制来表示所出现的字节的数值。这个数值只会落在0到63之间。然后将每个数加上32，所产生的结果刚好落在ASCII字符集中可打印字符（32-空白…95-底线）的范围之中。</p>
-<p>跟Base64具有非常多的类似，也做了一些特殊转码说明！因为对所有文本都会编码一次可读性不是很好！！</p>
-</blockquote>
-<p><a target="_blank" rel="noopener" href="http://blog.chacuo.net/753.html">uuencode编码算法</a></p>
-<h3 id="base家族">19.6 base家族</h3>
-<p>主要功能是将特殊字符和不可见字符转换为常见字符。 hex编码其实就是base16编码。因为hex是用字符ASCII码的十六进制表示，即用16个字符表示256个字符，所以叫base16。 同理，base32和base64就是用32、64个字符表示256个字符。</p>
-<p>base64： <img src="https://img-blog.csdnimg.cn/20200602074159877.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L21hc3Rlcmd1Mg==,size_16,color_FFFFFF,t_70" alt="base64索引表"> base32： <img src="https://img-blog.csdnimg.cn/20200602074337747.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L21hc3Rlcmd1Mg==,size_16,color_FFFFFF,t_70" alt="base32索引表"> base16： <img src="https://img-blog.csdnimg.cn/20200602074410371.png" alt="base16索引表"></p>
-<h2 id="第二十章-古典密码">第二十章 古典密码</h2>
-<p><strong>移位密码</strong>和<strong>替代密码</strong></p>
-<p>在讲解密码学的过程中，一般使用<strong>m代表明文，c代表密文</strong></p>
-<p>密码和编码最大的区别在于一个关键信息：<strong>密钥</strong></p>
-<h3 id="移位密码">20.1 移位密码</h3>
-<h4 id="简单移位密码">20.1.1 简单移位密码</h4>
-<p>明文根据密钥进行了位置的变换</p>
-<p>攻击方法有<strong>爆破</strong>和<strong>语义分析</strong></p>
-<h4 id="区路密码">20.1.2 区路密码</h4>
-<p>将明文填入一个表中，并按照一定的曲路遍历</p>
-<h4 id="云影密码">20.1.3 云影密码</h4>
-<p>有1，2，4，8这四个数字，可以通过加法来用这四个数字表示0-9中的任何一个数字，例如0=2+8，同理7=1+2+4， 9=1+8。这样之后再用1-26来表示26个英文字母，就有了密文与明文之间的对应关系。引入0来作为间隔，以免出现混乱。所以云影密码又叫“01248密码”。</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">de_code</span>(<span class="params">c</span>):</span></span><br><span class="line">    dic = [<span class="built_in">chr</span>(i) <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">ord</span>(<span class="string">&quot;A&quot;</span>), <span class="built_in">ord</span>(<span class="string">&quot;Z&quot;</span>) + <span class="number">1</span>)]</span><br><span class="line">    flag = []</span><br><span class="line">    c2 = [i <span class="keyword">for</span> i <span class="keyword">in</span> c.split(<span class="string">&quot;0&quot;</span>)]</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> c2:</span><br><span class="line">        c3 = <span class="number">0</span></span><br><span class="line">        <span class="keyword">for</span> j <span class="keyword">in</span> i:</span><br><span class="line">            c3 += <span class="built_in">int</span>(j)</span><br><span class="line">        flag.append(dic[c3 - <span class="number">1</span>])</span><br><span class="line">    <span class="keyword">return</span> flag</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">encode</span>(<span class="params">plaintext</span>):</span></span><br><span class="line">    dic = [<span class="built_in">chr</span>(i) <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">ord</span>(<span class="string">&quot;A&quot;</span>), <span class="built_in">ord</span>(<span class="string">&quot;Z&quot;</span>) + <span class="number">1</span>)]</span><br><span class="line">    m = [i <span class="keyword">for</span> i <span class="keyword">in</span> plaintext]</span><br><span class="line">    tmp = [];flag = []</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(m)):</span><br><span class="line">        <span class="keyword">for</span> j <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(dic)):</span><br><span class="line">            <span class="keyword">if</span> m[i] == dic[j]:</span><br><span class="line">                tmp.append(j + <span class="number">1</span>)</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> tmp:</span><br><span class="line">        res = <span class="string">&quot;&quot;</span></span><br><span class="line">        <span class="keyword">if</span> i &gt;= <span class="number">8</span>:</span><br><span class="line">            res += <span class="built_in">int</span>(i/<span class="number">8</span>)*<span class="string">&quot;8&quot;</span></span><br><span class="line">        <span class="keyword">if</span> i%<span class="number">8</span> &gt;=<span class="number">4</span>:</span><br><span class="line">            res += <span class="built_in">int</span>(i%<span class="number">8</span>/<span class="number">4</span>)*<span class="string">&quot;4&quot;</span></span><br><span class="line">        <span class="keyword">if</span> i%<span class="number">4</span> &gt;=<span class="number">2</span>:</span><br><span class="line">            res += <span class="built_in">int</span>(i%<span class="number">4</span>/<span class="number">2</span>)*<span class="string">&quot;2&quot;</span></span><br><span class="line">        <span class="keyword">if</span> i%<span class="number">2</span> &gt;= <span class="number">1</span>:</span><br><span class="line">            res += <span class="built_in">int</span>(i%<span class="number">2</span>/<span class="number">1</span>)*<span class="string">&quot;1&quot;</span></span><br><span class="line">        flag.append(res + <span class="string">&quot;0&quot;</span>)</span><br><span class="line">    <span class="built_in">print</span> (<span class="string">&quot;&quot;</span>.join(flag)[:-<span class="number">1</span>])</span><br><span class="line"></span><br><span class="line">c = <span class="built_in">input</span>(<span class="string">&quot;输入要解密的数字串:&quot;</span>)</span><br><span class="line"><span class="built_in">print</span> (de_code(c))</span><br><span class="line">m_code = <span class="built_in">input</span>(<span class="string">&quot;请输入要加密的数字串:&quot;</span>)</span><br><span class="line">encode(m_code)</span><br></pre></td></tr></table></figure>
-<h4 id="栅栏密码">20.1.4 栅栏密码</h4>
-<p>密钥为栅栏的长度k，顺数k个字符为一组，取每一组的第一个字符组成字符串，取完一轮后再取每组的第二个，以此类推。</p>
-<p>观察的方法是，如果flag是特征，那么密文中<code>f</code>和<code>l</code>的下标差为m，总字符数为n，所以<strong>密钥</strong>即栅栏的长度为<strong>n/m</strong></p>
-<h3 id="替代密码">20.2 替代密码</h3>
-<p>最有效的攻击方法是<strong>词频攻击</strong></p>
-<h4 id="单表替代密码">20.2.1 单表替代密码</h4>
-<h5 id="凯撒密码">1.凯撒密码</h5>
-<p>将所有数字偏移一定的位数，生成密文</p>
-<p>最简单的攻击方法是<strong>直接爆破</strong>，将所有移位方式全部生成然后关键词匹配或者肉眼观察</p>
-<h5 id="rot13">2.ROT13</h5>
-<p>是凯撒密码的一种特例，即移位13.</p>
-<p>经常用于MD5和flag等字符串上，MD5由于只有“ABCDEF”六个字符，加密后变为“<strong>NOPQRS</strong>”，flag则变成“<strong>synt</strong>”</p>
-<h5 id="埃特巴什码">3.埃特巴什码</h5>
-<p>埃特巴什码是一种固定密钥的替换密码，其明文字母表与密文字母表正好相反，即所有的A都会被替换成Z，所有的B都会被替换成Y，依次类推。</p>
-<p><strong>埃特巴什码没有安全性可言，因为它的密钥是固定的。</strong></p>
-<figure>
-<img src="http://cryptowikis.com/ClassicalCipher/SubstitutionCiphers/image/AtbashCipher-1.png" alt="img"><figcaption aria-hidden="true">img</figcaption>
-</figure>
-<h5 id="经典单表替代密码">4.经典单表替代密码</h5>
-<p>上述几种都是单表替代密码的特例。</p>
-<p>经典单表替代密码，就是其统称，普遍意义上的<strong>用一个替代表对每一个位置的字符进行查表替换</strong>。</p>
-<h5 id="培根密码">5.培根密码</h5>
-<p>五个一组，用两个不同的字体表示密文。</p>
-<figure>
-<img src="https://img.chainnews.com/material/images/ed5fdc0e40eb3f79330ae288ca9d3dea.jpg-article" alt="密码学基础：古典密码学（一）｜ 观点- 链闻ChainNews"><figcaption aria-hidden="true">密码学基础：古典密码学（一）｜ 观点- 链闻ChainNews</figcaption>
-</figure>
-<h5 id="图形替代密码">6.图形替代密码</h5>
-<p>如猪圈密码和跳舞的小人</p>
-<h5 id="仿射密码">7.仿射密码</h5>
-<p>$ c=Am+B mod n$ 其中，<strong>（a,b）</strong>为密钥</p>
-<h4 id="多表替代密码">20.2.2 多表替代密码</h4>
-<h5 id="棋盘类密码">1.棋盘类密码</h5>
-<table>
-<thead>
-<tr class="header">
-<th></th>
-<th>1</th>
-<th>2</th>
-<th>3</th>
-<th>4</th>
-<th>5</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>1</td>
-<td>A</td>
-<td>B</td>
-<td>C</td>
-<td>D</td>
-<td>E</td>
-</tr>
-<tr class="even">
-<td>2</td>
-<td>F</td>
-<td>G</td>
-<td>H</td>
-<td>I/J</td>
-<td>K</td>
-</tr>
-<tr class="odd">
-<td>3</td>
-<td>L</td>
-<td>M</td>
-<td>N</td>
-<td>O</td>
-<td>P</td>
-</tr>
-<tr class="even">
-<td>4</td>
-<td>Q</td>
-<td>R</td>
-<td>S</td>
-<td>T</td>
-<td>U</td>
-</tr>
-<tr class="odd">
-<td>5</td>
-<td>V</td>
-<td>W</td>
-<td>X</td>
-<td>Y</td>
-<td>Z</td>
-</tr>
-</tbody>
-</table>
-<h5 id="维吉尼亚密码">2.维吉尼亚密码</h5>
-<p>维吉尼亚密码是一种简单的多表代换密码(由26个类似的Caesar密码的代换表组成)，</p>
-<p>即由<strong>一些</strong>偏移量不同的恺撒密码组成，这些代换在一起组成了密钥。</p>
-<p>明文的第一个字母按照密钥的第一个字母进行加密，明文的第二个字母按照密钥的第二个字母进行加密，以此类推。密钥字母数量不够可循环使用。</p>
-<p>例如，假设明文为： <img src="https://www.zhihu.com/equation?tex=ILOVEMIMAXUE" alt="[公式]"> ，密钥为： <img src="https://www.zhihu.com/equation?tex=AWSL" alt="[公式]"></p>
-<p>则密文为： <img src="https://www.zhihu.com/equation?tex=IHGGEIAXATMP" alt="[公式]"> 。</p>
-<p>（密钥若长度不够可以继续重复，例如 <img src="https://www.zhihu.com/equation?tex=AWSLAWSLAWSL" alt="[公式]"> ）</p>
-<p>解密方式与加密正好相反，通过图1可以进行解密。</p>
-<p>再例如，假设密文为： <img src="https://www.zhihu.com/equation?tex=FYXTNFXDM" alt="[公式]"> ，密钥为： <img src="https://www.zhihu.com/equation?tex=TQL" alt="[公式]"></p>
-<p>则解密得到的明文为： <img src="https://www.zhihu.com/equation?tex=MIMAXUENB" alt="[公式]"> 。</p>
-<h2 id="第21章-现代密码">第21章 现代密码</h2>
-<h3 id="公钥密码">21.2 公钥密码</h3>
-<p>一个密码体制中的<strong>加密密钥和解密密钥不同</strong>，其中<strong>加密密钥是公开的解密密钥是保密的</strong>，且由<strong>加密密钥很难推算出解密密钥</strong>。</p>
-<p>所有的公钥算法都是基于某个<strong>困难的数学问题</strong>而产生的。</p>
-<h4 id="rsa基础">21.2.1 RSA基础</h4>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1825,20 +1758,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">11</span>
+          <span class="site-state-item-count">12</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-count">4</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-count">7</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -1865,7 +1798,7 @@
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2021</span>
+  <span itemprop="copyrightYear">2022</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
