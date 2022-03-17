@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="一、 单周期 CPU 概述 1．单周期 CPU     CPU每个时钟周期跑一个指令 2．支持的指令： （最后一行为按照实验要求自行添加的）  add&#x2F;sub&#x2F;and&#x2F;or&#x2F;slt&#x2F;sltu&#x2F;addu&#x2F;subu   addi&#x2F;ori&#x2F;lw&#x2F;sw&#x2F;beq j&#x2F;jal sll&#x2F;nor&#x2F;lui&#x2F;slti&#x2F;bne&#x2F;andi&#x2F;srl&#x2F;sllv&#x2F;srlv&#x2F;jr&#x2F;jalr  3．主要模块">
+<meta property="og:type" content="article">
+<meta property="og:title" content="计组实验-cpu设计-指令添加">
+<meta property="og:url" content="http://example.com/2022/03/17/%E8%AE%A1%E7%BB%84%E5%AE%9E%E9%AA%8C-cpu%E8%AE%BE%E8%AE%A1-%E6%8C%87%E4%BB%A4%E6%B7%BB%E5%8A%A0/index.html">
+<meta property="og:site_name" content="Liquid&#39;s Blog">
+<meta property="og:description" content="一、 单周期 CPU 概述 1．单周期 CPU     CPU每个时钟周期跑一个指令 2．支持的指令： （最后一行为按照实验要求自行添加的）  add&#x2F;sub&#x2F;and&#x2F;or&#x2F;slt&#x2F;sltu&#x2F;addu&#x2F;subu   addi&#x2F;ori&#x2F;lw&#x2F;sw&#x2F;beq j&#x2F;jal sll&#x2F;nor&#x2F;lui&#x2F;slti&#x2F;bne&#x2F;andi&#x2F;srl&#x2F;sllv&#x2F;srlv&#x2F;jr&#x2F;jalr  3．主要模块">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20211208161642606.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20211208182354123.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20211208184647663.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20211208184730702.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20211208185051105.png">
+<meta property="article:published_time" content="2022-03-17T05:29:11.000Z">
+<meta property="article:modified_time" content="2022-03-17T05:31:01.661Z">
+<meta property="article:author" content="Liquid">
+<meta property="article:tag" content="计算机组成原理">
+<meta property="article:tag" content="verilog">
+<meta property="article:tag" content="CPU">
+<meta property="article:tag" content="实验">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20211208161642606.png">
+
+<link rel="canonical" href="http://example.com/2022/03/17/%E8%AE%A1%E7%BB%84%E5%AE%9E%E9%AA%8C-cpu%E8%AE%BE%E8%AE%A1-%E6%8C%87%E4%BB%A4%E6%B7%BB%E5%8A%A0/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>计组实验-cpu设计-指令添加 | Liquid's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="Liquid's Blog" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Liquid's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/03/17/%E8%AE%A1%E7%BB%84%E5%AE%9E%E9%AA%8C-cpu%E8%AE%BE%E8%AE%A1-%E6%8C%87%E4%BB%A4%E6%B7%BB%E5%8A%A0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Liquid">
+      <meta itemprop="description" content="一个写字的地方而已">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Liquid's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          计组实验-cpu设计-指令添加
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2022-03-17 13:29:11 / 修改时间：13:31:01" itemprop="dateCreated datePublished" datetime="2022-03-17T13:29:11+08:00">2022-03-17</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%AE%9E%E9%AA%8C%E8%AE%B0%E5%BD%95/" itemprop="url" rel="index"><span itemprop="name">实验记录</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="一-单周期-cpu">一、 单周期 CPU</h2>
+<h3 id="概述">概述</h3>
+<h4 id="单周期-cpu">1．单周期 CPU</h4>
+<p>    CPU每个时钟周期跑一个指令</p>
+<h4 id="支持的指令">2．支持的指令：</h4>
+<p>（最后一行为按照实验要求自行添加的）</p>
+<ul>
+<li><p>add/sub/and/or/slt/sltu/addu/subu  </p></li>
+<li><p>addi/ori/lw/sw/beq</p></li>
+<li><p>j/jal</p></li>
+<li><p>sll/nor/lui/slti/bne/andi/srl/sllv/srlv/jr/jalr</p></li>
+</ul>
+<h4 id="主要模块">3．主要模块：</h4>
+<ol type="1">
+<li><p>alu.v:计算模块，负责各个指令在 EX 段的算术操作。</p></li>
+<li><p>crtl.v：译码模块，将 MIPS 汇编语言程序形成的机械指令进行译码。</p></li>
+<li><p>crtl_encode.v：编码模块，存放各种编码。</p></li>
+<li><p>dm.v ：存储器操作模块，负责进行MEM操作。</p></li>
+<li><p>EXT.v：数字扩展模块，对一些立即数进行符号拓展或零拓展。</p></li>
+<li><p>im.v ：指令储存模块，进行取指操作。</p></li>
+<li><p>mux.v:选择器模块，根据指令的不同，来进行各阶段相应数据的选择。</p></li>
+<li><p>NPC.v：指令地址计算模块，负责计算下一条指令的地址。</p></li>
+<li><p>PC.v：程序计数器，负责生成下一条指令的地址。</p></li>
+<li><p>sscomp_tb.v：顶层实体文件</p></li>
+<li><p>sccpu.v：主模块，负责连接各个模块进行统一操作</p></li>
+<li><p>sccomp.v：顶层模块，连接CPU和存储器。</p></li>
+<li><p>RF.v:寄存器堆，负责寄存器的写入和输出。</p></li>
+</ol>
+<h3 id="重要部件">重要部件</h3>
+<h4 id="pc程序计数器"><strong>PC（程序计数器）</strong></h4>
+<p>根据当前具体的指令，决定下一条指令的地址。</p>
+<p><strong>接口</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th>信号名</th>
+<th>方向</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Clk</td>
+<td>Input</td>
+<td>时钟信号</td>
+</tr>
+<tr class="even">
+<td>Rst</td>
+<td>Input</td>
+<td>复位信号</td>
+</tr>
+<tr class="odd">
+<td>NPC</td>
+<td>Input</td>
+<td>计算下一条指令地址的模块</td>
+</tr>
+<tr class="even">
+<td>PC</td>
+<td>Output</td>
+<td>输出</td>
+</tr>
+</tbody>
+</table>
+<h4 id="rf寄存器文件"><strong>RF（寄存器文件）</strong></h4>
+<p>功能描述 读出和写入寄存器</p>
+<p>读出：不需要控制</p>
+<p>写入：RFWr 为 1</p>
+<figure>
+<img src="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20211208161642606.png" alt="image20211208161642606"><figcaption aria-hidden="true">image20211208161642606</figcaption>
+</figure>
+<p><strong>接口：</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th>信号名</th>
+<th>方向</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Clk</td>
+<td>Input</td>
+<td>时钟信号</td>
+</tr>
+<tr class="even">
+<td>Rst</td>
+<td>Input</td>
+<td>复位信号</td>
+</tr>
+<tr class="odd">
+<td>RFWr</td>
+<td>Input</td>
+<td>写回信号</td>
+</tr>
+<tr class="even">
+<td>A1[4:0]</td>
+<td>Input</td>
+<td>寄存器Rs的地址寻址信号</td>
+</tr>
+<tr class="odd">
+<td>A2[4:0]</td>
+<td>Input</td>
+<td>寄存器Rt的地址寻址信号</td>
+</tr>
+<tr class="even">
+<td>A3[4:0]</td>
+<td>Input</td>
+<td>寄存器Rd的地址寻址信号</td>
+</tr>
+<tr class="odd">
+<td>WD[32:0]</td>
+<td>Input</td>
+<td>写回的数据</td>
+</tr>
+<tr class="even">
+<td>Reg_sel</td>
+<td>Input</td>
+<td>写入信号选择（Rd or Shamt）</td>
+</tr>
+<tr class="odd">
+<td>RD1[31:0]</td>
+<td>Output</td>
+<td>寄存器输出</td>
+</tr>
+<tr class="even">
+<td>RD2[31:0]</td>
+<td>Output</td>
+<td>寄存器输出</td>
+</tr>
+<tr class="odd">
+<td>Reg_data[31:0]</td>
+<td>Output</td>
+<td>根据Reg_sel选择的输出信号</td>
+</tr>
+</tbody>
+</table>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">  <span class="keyword">module</span> RF(   <span class="keyword">input</span>         clk, </span><br><span class="line">               <span class="keyword">input</span>         rst,</span><br><span class="line">               <span class="keyword">input</span>         RFWr, </span><br><span class="line">               <span class="keyword">input</span>  [<span class="number">4</span>:<span class="number">0</span>]  A1, A2, A3, </span><br><span class="line">               <span class="keyword">input</span>  [<span class="number">31</span>:<span class="number">0</span>] WD, </span><br><span class="line">               <span class="keyword">output</span> [<span class="number">31</span>:<span class="number">0</span>] RD1, RD2,</span><br><span class="line">               <span class="keyword">input</span>  [<span class="number">4</span>:<span class="number">0</span>]  reg_sel,</span><br><span class="line">               <span class="keyword">output</span> [<span class="number">31</span>:<span class="number">0</span>] reg_data);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">reg</span> [<span class="number">31</span>:<span class="number">0</span>] rf[<span class="number">31</span>:<span class="number">0</span>];</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (RFWr) <span class="keyword">begin</span></span><br><span class="line">        rf[A3] &lt;= WD;</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">assign</span> RD1 = (A1 != <span class="number">0</span>) ? rf[A1] : <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">assign</span> RD2 = (A2 != <span class="number">0</span>) ? rf[A2] : <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">assign</span> reg_data = (reg_sel != <span class="number">0</span>) ? rf[reg_sel] : <span class="number">0</span>; </span><br><span class="line"></span><br><span class="line"><span class="keyword">endmodule</span> </span><br></pre></td></tr></table></figure>
+<h4 id="alu"><strong>ALU</strong></h4>
+<p>功能描述：执行 CPU 的各种计算</p>
+<p>ALUOp[2:0]：决定执行何种计算</p>
+<p>其中 A、B 取决于一些选择信号</p>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">mux2 <span class="variable">#(32)</span> U_MUX_ALU_A(</span><br><span class="line">   <span class="variable">.d0</span>(RD1),<span class="variable">.d1</span>(shamt),<span class="variable">.s</span>(AregSel),<span class="variable">.y</span>(A)</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line"><span class="comment">// mux for ALU B</span></span><br><span class="line">mux2 <span class="variable">#(32)</span> U_MUX_ALU_B (</span><br><span class="line">   <span class="variable">.d0</span>(writedata), <span class="variable">.d1</span>(Imm32), <span class="variable">.s</span>(ALUSrc), <span class="variable">.y</span>(B)</span><br><span class="line">);   </span><br><span class="line"></span><br><span class="line"><span class="comment">// instantiation of alu</span></span><br><span class="line">alu U_ALU ( </span><br><span class="line">   <span class="variable">.A</span>(A), <span class="variable">.B</span>(B), <span class="variable">.ALUOp</span>(ALUOp), <span class="variable">.C</span>(aluout), <span class="variable">.Zero</span>(Zero)</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+<h4 id="mux">MUX</h4>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// mux for register data to write</span></span><br><span class="line">  mux4 <span class="variable">#(5)</span> U_MUX4_GPR_A3 (</span><br><span class="line">     <span class="variable">.d0</span>(rd), <span class="variable">.d1</span>(rt), <span class="variable">.d2</span>(<span class="number">5&#x27;b11111</span>), <span class="variable">.d3</span>(<span class="number">5&#x27;b0</span>), <span class="variable">.s</span>(GPRSel), <span class="variable">.y</span>(A3)</span><br><span class="line">  );</span><br><span class="line"> <span class="comment">//选择要写入数据的寄存器，A3在RF中用作RFWr，即写入寄存器的序号</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// mux for register address to write</span></span><br><span class="line">  mux4 <span class="variable">#(32)</span> U_MUX4_GPR_WD (</span><br><span class="line">     <span class="variable">.d0</span>(aluout), <span class="variable">.d1</span>(readdata), <span class="variable">.d2</span>(PC + <span class="number">4</span>), <span class="variable">.d3</span>(<span class="number">32&#x27;b0</span>), <span class="variable">.s</span>(WDSel), <span class="variable">.y</span>(WD)</span><br><span class="line">  );</span><br><span class="line">   <span class="comment">// 这里在选择把哪个数据写回到寄存器中，可能是ALU计算的结果（移位），可能是从存储器中读出的数据（lw），可能是暂存的下一条指令地址（j型），可能什么也没有（不写入）</span></span><br><span class="line"></span><br><span class="line">  mux2 <span class="variable">#(32)</span> U_MUX_ALU_A(</span><br><span class="line">     <span class="variable">.d0</span>(RD1),<span class="variable">.d1</span>(shamt),<span class="variable">.s</span>(AregSel),<span class="variable">.y</span>(A)</span><br><span class="line">  );</span><br><span class="line">   <span class="comment">// 在ALU内部起作用，决定是用rd来逻辑移位，还是用shamt来逻辑移位</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// mux for ALU B</span></span><br><span class="line">  mux2 <span class="variable">#(32)</span> U_MUX_ALU_B (</span><br><span class="line">     <span class="variable">.d0</span>(writedata), <span class="variable">.d1</span>(Imm32), <span class="variable">.s</span>(ALUSrc), <span class="variable">.y</span>(B)</span><br><span class="line">  );   </span><br><span class="line">   <span class="comment">// 寄存器读出的第一个数据肯定会被送进ALU，这里是在选择是把寄存器读出的第二个数据放进ALU，还是放立即数，之所以叫writedata，是因为这个数据同时也会被送到MEM中</span></span><br></pre></td></tr></table></figure>
+<h3 id="添加指令">添加指令</h3>
+<h4 id="bne-不相等跳转分支指令-i-型">bne 不相等跳转分支指令 I 型</h4>
+<p>bne rs, rt, label1 形式为 6 5 5 16（offeset)</p>
+<p>func[5:0]:000101</p>
+<p>1．crtl.v 模块添加相应wire 信号</p>
+<p>2．ALU 模块中添加运算</p>
+<p>ALIOP 0010 与 sub 相同，本质上就是相减判断是否为0</p>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">`ALU_SUB:  C = A - B;                      // SUB</span></span><br></pre></td></tr></table></figure>
+<p>3．由于 bne 指令要跳转，所以要修改 npc操作码</p>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">assign</span> NPCOp[<span class="number">0</span>] = (i_beq &amp; Zero)|(i_bne &amp;~ Zero) | i_jr | i_jalr;</span><br></pre></td></tr></table></figure>
+<h4 id="sll-srl-sllv-srlv-移位指令-r型">sll &amp; srl &amp; sllv &amp; srlv 移位指令 R型</h4>
+<p>sll 逻辑左移 R型 funct 000000 sll rd, rt, shamt rd =rt &lt;&lt; shamt 655556 形式</p>
+<p>srl 逻辑右移 R型 funct 000010 srl rd, rt, shamt rd =rt &gt;&gt; shamt 655556 形式</p>
+<p>sllv 逻辑左移变量 R型 funct 000100 srllv rd, rt, rs rd =rt &lt;&lt; rs 655556</p>
+<p>srlv 逻辑右移变量 R型 funct 000110 srlv rd, rt, rs rd =rt &gt;&gt; rs 65556</p>
+<p>1．crtl.v 中需要添加多路选择器，判断选择 rs 还是 shamt</p>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">assign</span> AregSel    = i_sll | i_srl;</span><br></pre></td></tr></table></figure>
+<p>2．sccpu.v 模块绑定信号 <code>AregSel,shamt,Alu_A</code></p>
+<p>对 shamt 信号格式进行定义, 前 27 位为 0，取 6 到 10 位指令</p>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">assign</span> shamt=&#123;<span class="number">27&#x27;b0</span>,instr[<span class="number">10</span>:<span class="number">6</span>]&#125;;</span><br></pre></td></tr></table></figure>
+<p>3．补充多路选择器 mux2</p>
+<p>4．alu.v 模块输入端口进行修改</p>
+<p>sllv 和 srlv 在原来的基础上只需要修改译码和操作数</p>
+<h4 id="slti-小于立即数则置位-i-型-001010">slti 小于立即数则置位 I 型 001010</h4>
+<p>slti rt, rs, imm 65516</p>
+<p>1．指令译码，Crtl.v 添加对应信号</p>
+<p>2．寄存器写信号</p>
+<p>3．Aluop 操作码与 slt 一致</p>
+<h4 id="nor-异或-r型-funct100111">nor 异或 R型 funct100111</h4>
+<p>nor rd, rs, rt 0 rs rt rd 0 0x27(6 5 5 5 5 6)</p>
+<p>rd = ~(rs|rt)</p>
+<p>1．ALU 模块进行扩充</p>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ALU_NOR:  C = ~(A | B);</span><br></pre></td></tr></table></figure>
+<p>2．Crtl_encode 添加相应的操作码</p>
+<p>3．Crtl.v 添加译码</p>
+<p>4．Aluop 操作控制码修改</p>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">assign</span> ALUOp[<span class="number">3</span>]=  i_sll | i_sllv | i_srl | i_srlv | i_nor | i_lui ;</span><br></pre></td></tr></table></figure>
+<h4 id="lui-立即数高-16-位放进一个寄存器-i-型-funct001111">lui 立即数高 16 位放进一个寄存器 I 型 funct001111</h4>
+<p>lui rt, imm RT={imm,16'b0} 6 5 5 16</p>
+<p>需要 16 位立即数符号扩展，再左移 16 位</p>
+<figure>
+<img src="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20211208182354123.png" alt="image20211208182354123"><figcaption aria-hidden="true">image20211208182354123</figcaption>
+</figure>
+<p>1．Ctrl.v 添加指令译码信号</p>
+<p>2．寄存器写信号</p>
+<p>3．写回 rt 寄存器</p>
+<p>4．零扩展</p>
+<p>5．Alu_op 操作码修改</p>
+<p>6．ALU 运算取数据信号修改，取一个立即数</p>
+<h4 id="andi-立即数与-i-型-op001100">andi 立即数与 I 型 op:001100</h4>
+<p>andi rt rs imm (6 5 5 16)</p>
+<figure>
+<img src="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20211208184647663.png" alt="image20211208184647663"><figcaption aria-hidden="true">image20211208184647663</figcaption>
+</figure>
+<p>1．crtl.v 添加译码</p>
+<p>2．零扩展信号</p>
+<p>3．添加寄存器写信号</p>
+<p>4．Alu 需要进行选择，添加 Alu_op</p>
+<p>5．Alu 端口需要进行选择，修改 AluSrc</p>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">output</span>       ALUSrc;   <span class="comment">// ALU source for A</span></span><br><span class="line"><span class="keyword">assign</span> ALUSrc     = i_lw | i_sw | i_addi | i_ori | i_slti | i_lui | i_andi;   </span><br><span class="line"><span class="comment">// ALU B is from instruction immediate</span></span><br></pre></td></tr></table></figure>
+<h4 id="jr-寄存器跳转-r型-001000">jr 寄存器跳转 R型 001000</h4>
+<p>jr rs(无条件跳转到由寄存器 rs 指定的指令） 0 rs 0 8(6 5 15 6)</p>
+<p>pc=GPR[rs]</p>
+<figure>
+<img src="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20211208184730702.png" alt="image20211208184730702"><figcaption aria-hidden="true">image20211208184730702</figcaption>
+</figure>
+<p>1．Crtl.v 添加指令译码信号</p>
+<p>2．NPCOp 修改</p>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">assign</span> NPCOp[<span class="number">1</span>] = i_j | i_jal | i_jr | i_jalr;</span><br></pre></td></tr></table></figure>
+<p>3．Crtl_encode 修改</p>
+<p>4．NPC 模块修改</p>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">`NPC_JR:     NPC = PCJR;</span></span><br></pre></td></tr></table></figure>
+<h4 id="jalr-跳转并链接到寄存器-r型-001001">jalr 跳转并链接到寄存器 R型 001001</h4>
+<p>jalr rs rd 0 rs 0 rd 0 9(6 5 5 5 5 6)</p>
+<p>pc=GPR[rs]; GPR[rd]=pc+4</p>
+<figure>
+<img src="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20211208185051105.png" alt="image20211208185051105"><figcaption aria-hidden="true">image20211208185051105</figcaption>
+</figure>
+<p>1．Crtl.v 添加指令译码信号</p>
+<p>2．添加寄存器写信号</p>
+<p>3．选择需要写的来自 PC 数据__</p>
+<p>4．对 NPC 选择</p>
+<h2 id="二-多周期-cpu">二、 多周期 CPU</h2>
+<h3 id="在单周期基础上的修改">在单周期基础上的修改</h3>
+<p>1、 在单周期 CPU 模块设计上进行改进，采用类似的思路。各个模块之间相互连接，实现将一条指令的五个阶段顺序执行的过程。</p>
+<p>2、 模块设计以功能部件为基础进行构造，进而构造顶层实体</p>
+<p>3、 模块组成： alu.v,crtl.v,crtl_encode_def.v,dm.v,EXT.v,flopenr.v,flopr.v,mc comp.v,mmcpu.v,mux.v,RF.v</p>
+<p>4、 多周期 CPU 特征模块介绍</p>
+<h3 id="crtl部分的状态转移">Crtl部分的状态转移</h3>
+<p>与单周期控制模块不同,多周期 cpu 控制模块增加了指令的执行的状态，对于指令的五个阶段分别进行相应的操作。根据指令的特征选择指令具有的阶段。</p>
+<p><strong>对于状态转移的控制</strong></p>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br></pre></td><td class="code"><pre><span class="line"> <span class="keyword">reg</span> [<span class="number">2</span>:<span class="number">0</span>] nextstate;</span><br><span class="line"> <span class="keyword">reg</span> [<span class="number">2</span>:<span class="number">0</span>] state;</span><br><span class="line"></span><br><span class="line"> <span class="keyword">always</span> @(<span class="keyword">posedge</span> clk <span class="keyword">or</span> <span class="keyword">posedge</span> rst) <span class="keyword">begin</span></span><br><span class="line">   <span class="keyword">if</span> ( rst )</span><br><span class="line">     state &lt;= sif;</span><br><span class="line">   <span class="keyword">else</span></span><br><span class="line">     state &lt;= nextstate;</span><br><span class="line"> <span class="keyword">end</span> <span class="comment">// end always</span></span><br><span class="line"></span><br><span class="line"> <span class="keyword">parameter</span>  [<span class="number">2</span>:<span class="number">0</span>] sif  = <span class="number">3&#x27;b000</span>,                <span class="comment">// IF  state</span></span><br><span class="line">                  sid  = <span class="number">3&#x27;b001</span>,                <span class="comment">// ID  state</span></span><br><span class="line">                  sexe = <span class="number">3&#x27;b010</span>,                <span class="comment">// EXE state</span></span><br><span class="line">                  smem = <span class="number">3&#x27;b011</span>,                <span class="comment">// MEM state</span></span><br><span class="line">                  swb  = <span class="number">3&#x27;b100</span>;                <span class="comment">// WB  state</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/*************************************************/</span></span><br><span class="line"><span class="comment">/******         Control Signal              ******/</span></span><br><span class="line"> <span class="keyword">always</span> @(*) <span class="keyword">begin</span></span><br><span class="line">   RegWrite = <span class="number">0</span>;</span><br><span class="line">   MemWrite = <span class="number">0</span>;</span><br><span class="line">   PCWrite  = <span class="number">0</span>;</span><br><span class="line">   IRWrite  = <span class="number">0</span>;</span><br><span class="line">   EXTOp    = <span class="number">1</span>;           <span class="comment">// signed extension</span></span><br><span class="line">   ALUSrcA  = <span class="number">1</span>;           <span class="comment">// 1 - ReadData1</span></span><br><span class="line">   ALUSrcB  = <span class="number">2&#x27;b00</span>;       <span class="comment">// 0 - ReadData2</span></span><br><span class="line">   ALUOp    = <span class="number">4&#x27;b0001</span>;      <span class="comment">// ALU_ADD       3&#x27;b001</span></span><br><span class="line">   GPRSel   = <span class="number">2&#x27;b00</span>;       <span class="comment">// GPRSel_RD     2&#x27;b00</span></span><br><span class="line">   WDSel    = <span class="number">2&#x27;b00</span>;       <span class="comment">// WDSel_FromALU 2&#x27;b00</span></span><br><span class="line">   PCSource = <span class="number">3&#x27;b000</span>;       <span class="comment">// PC + 4 (ALU)</span></span><br><span class="line">   IorD     = <span class="number">0</span>;           <span class="comment">// 0-memory access for instruction</span></span><br><span class="line">   AregSel  = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">   <span class="keyword">case</span> (state)</span><br><span class="line">        sif: <span class="keyword">begin</span></span><br><span class="line">          PCWrite = <span class="number">1</span>;</span><br><span class="line">          IRWrite = <span class="number">1</span>;</span><br><span class="line">          ALUSrcA = <span class="number">0</span>;      <span class="comment">// PC</span></span><br><span class="line">          ALUSrcB = <span class="number">2&#x27;b01</span>;  <span class="comment">// 4</span></span><br><span class="line">          nextstate = sid;</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">        sid: <span class="keyword">begin</span></span><br><span class="line">          <span class="keyword">if</span> (i_j) <span class="keyword">begin</span></span><br><span class="line">            PCSource = <span class="number">3&#x27;b010</span>; <span class="comment">// JUMP address</span></span><br><span class="line">            PCWrite = <span class="number">1</span>;</span><br><span class="line">            nextstate = sif;</span><br><span class="line">          <span class="keyword">end</span> <span class="keyword">else</span> <span class="keyword">if</span> (i_jal) <span class="keyword">begin</span></span><br><span class="line">            PCSource = <span class="number">3&#x27;b010</span>; <span class="comment">// JUMP address</span></span><br><span class="line">            PCWrite = <span class="number">1</span>;</span><br><span class="line">            RegWrite = <span class="number">1</span>;</span><br><span class="line">            WDSel = <span class="number">2&#x27;b10</span>;    <span class="comment">// WDSel_FromPC  2&#x27;b10 </span></span><br><span class="line">            GPRSel = <span class="number">2&#x27;b10</span>;   <span class="comment">// GPRSel_31     2&#x27;b10</span></span><br><span class="line">            nextstate = sif;</span><br><span class="line">          <span class="keyword">end</span> <span class="keyword">else</span> <span class="keyword">if</span> (i_jr) <span class="keyword">begin</span></span><br><span class="line">            PCSource = <span class="number">3&#x27;b100</span>;</span><br><span class="line">            PCWrite = <span class="number">1</span>;</span><br><span class="line">            nextstate = sif;</span><br><span class="line">          <span class="keyword">end</span> <span class="keyword">else</span> <span class="keyword">if</span> (i_jalr) <span class="keyword">begin</span></span><br><span class="line">            PCSource = <span class="number">3&#x27;b100</span>;</span><br><span class="line">            PCWrite = <span class="number">1</span>;</span><br><span class="line">            RegWrite = <span class="number">1</span>;</span><br><span class="line">            WDSel = <span class="number">2&#x27;b10</span>;    <span class="comment">// WDSel_FromPC  2&#x27;b10 </span></span><br><span class="line">            GPRSel = <span class="number">2&#x27;b10</span>;   <span class="comment">// GPRSel_31     2&#x27;b10</span></span><br><span class="line">            nextstate = sif;</span><br><span class="line">          <span class="keyword">end</span> <span class="keyword">else</span> <span class="keyword">begin</span></span><br><span class="line">            ALUSrcA = <span class="number">0</span>;       <span class="comment">// PC</span></span><br><span class="line">            ALUSrcB = <span class="number">2&#x27;b11</span>;   <span class="comment">// branch offset</span></span><br><span class="line">            nextstate = sexe;</span><br><span class="line">          <span class="keyword">end</span></span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// ALU_NOP   4&#x27;b0000</span></span><br><span class="line">        <span class="comment">// ALU_ADD   4&#x27;b0001</span></span><br><span class="line">        <span class="comment">// ALU_SUB   4&#x27;b0010</span></span><br><span class="line">        <span class="comment">// ALU_AND   4&#x27;b0011</span></span><br><span class="line">        <span class="comment">// ALU_OR    4&#x27;b0100</span></span><br><span class="line">        <span class="comment">// ALU_SLT   4&#x27;b0101</span></span><br><span class="line">        <span class="comment">// ALU_SLTU  4&#x27;b0110</span></span><br><span class="line">        <span class="comment">// ALU_SLL   4&#x27;b0111     </span></span><br><span class="line">        <span class="comment">// ALU_SRL   4&#x27;b1000</span></span><br><span class="line">        <span class="comment">// ALU_NOR   4&#x27;b1001</span></span><br><span class="line">        <span class="comment">// ALU_LUI   4&#x27;b1010</span></span><br><span class="line"></span><br><span class="line">        sexe: <span class="keyword">begin</span></span><br><span class="line">            ALUOp[<span class="number">0</span>] = i_add | i_lw | i_sw | i_addi | i_and | i_slt | i_addu | i_sll | i_sllv | i_slti | i_nor | i_andi;</span><br><span class="line">            ALUOp[<span class="number">1</span>] = i_sub | i_beq | i_and | i_sltu | i_subu | i_bne | i_sll | i_sllv | i_lui | i_andi;</span><br><span class="line">            ALUOp[<span class="number">2</span>] = i_or | i_ori | i_slt | i_sltu | i_sll | i_sllv | i_slti;</span><br><span class="line">            ALUOp[<span class="number">3</span>] = i_srl | i_srlv | i_nor | i_lui;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (i_beq) <span class="keyword">begin</span></span><br><span class="line">                  PCSource = <span class="number">3&#x27;b001</span>; <span class="comment">// ALUout, branch address</span></span><br><span class="line">                  PCWrite = i_beq &amp; Zero;</span><br><span class="line">                  nextstate = sif;</span><br><span class="line">            <span class="keyword">end</span> <span class="keyword">else</span> <span class="keyword">if</span>(i_bne) <span class="keyword">begin</span></span><br><span class="line">                  PCSource = <span class="number">3&#x27;b001</span>;</span><br><span class="line">                  PCWrite = i_bne &amp; ~Zero;</span><br><span class="line">                  nextstate =sif;</span><br><span class="line">            <span class="keyword">end</span> <span class="keyword">else</span> <span class="keyword">if</span> (i_lw || i_sw) <span class="keyword">begin</span></span><br><span class="line">                  ALUSrcB = <span class="number">2&#x27;b10</span>; <span class="comment">// select offset</span></span><br><span class="line">                  nextstate = smem;</span><br><span class="line">            <span class="keyword">end</span> <span class="keyword">else</span> <span class="keyword">begin</span></span><br><span class="line">                  <span class="keyword">if</span> (i_addi || i_ori || i_slti || i_lui || i_andi)</span><br><span class="line">                      ALUSrcB = <span class="number">2&#x27;b10</span>; <span class="comment">// select immediate</span></span><br><span class="line">                  <span class="keyword">if</span> (i_ori || i_andi)</span><br><span class="line">                      EXTOp = <span class="number">0</span>; <span class="comment">// zero extension</span></span><br><span class="line">                    <span class="keyword">if</span> (i_sll | i_srl)</span><br><span class="line">                      AregSel = <span class="number">1</span>;</span><br><span class="line">                      nextstate = swb;</span><br><span class="line">            <span class="keyword">end</span></span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">      smem: <span class="keyword">begin</span></span><br><span class="line">          IorD = <span class="number">1</span>;  <span class="comment">// memory address  = ALUout</span></span><br><span class="line">          <span class="keyword">if</span> (i_lw) <span class="keyword">begin</span></span><br><span class="line">            nextstate = swb;</span><br><span class="line">          <span class="keyword">end</span> <span class="keyword">else</span> <span class="keyword">begin</span>  <span class="comment">// i_sw</span></span><br><span class="line">            MemWrite = <span class="number">1</span>;</span><br><span class="line">            nextstate = sif;</span><br><span class="line">          <span class="keyword">end</span></span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">      swb: <span class="keyword">begin</span></span><br><span class="line">        <span class="keyword">if</span> (i_lw)</span><br><span class="line">          WDSel = <span class="number">2&#x27;b01</span>;     <span class="comment">// WDSel_FromMEM 2&#x27;b01</span></span><br><span class="line">        <span class="keyword">if</span> (i_lw | i_addi | i_ori | i_slti | i_lui | i_andi) <span class="keyword">begin</span></span><br><span class="line">          GPRSel = <span class="number">2&#x27;b01</span>;    <span class="comment">// GPRSel_RT     2&#x27;b01</span></span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">        RegWrite = <span class="number">1</span>;</span><br><span class="line">        nextstate = sif;</span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">      <span class="keyword">default</span>: <span class="keyword">begin</span></span><br><span class="line">        nextstate = sif;</span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">   <span class="keyword">endcase</span></span><br><span class="line"> <span class="keyword">end</span> <span class="comment">// end always</span></span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86/" rel="tag"># 计算机组成原理</a>
+              <a href="/tags/verilog/" rel="tag"># verilog</a>
+              <a href="/tags/CPU/" rel="tag"># CPU</a>
+              <a href="/tags/%E5%AE%9E%E9%AA%8C/" rel="tag"># 实验</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/12/08/%E6%9C%8D%E5%8A%A1%E5%99%A8pytorch%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/" rel="prev" title="������pytorch��������">
+      <i class="fa fa-chevron-left"></i> ������pytorch��������
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80-%E5%8D%95%E5%91%A8%E6%9C%9F-cpu"><span class="nav-number">1.</span> <span class="nav-text">一、 单周期 CPU</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0"><span class="nav-number">1.1.</span> <span class="nav-text">概述</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8D%95%E5%91%A8%E6%9C%9F-cpu"><span class="nav-number">1.1.1.</span> <span class="nav-text">1．单周期 CPU</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%94%AF%E6%8C%81%E7%9A%84%E6%8C%87%E4%BB%A4"><span class="nav-number">1.1.2.</span> <span class="nav-text">2．支持的指令：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%BB%E8%A6%81%E6%A8%A1%E5%9D%97"><span class="nav-number">1.1.3.</span> <span class="nav-text">3．主要模块：</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%87%8D%E8%A6%81%E9%83%A8%E4%BB%B6"><span class="nav-number">1.2.</span> <span class="nav-text">重要部件</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#pc%E7%A8%8B%E5%BA%8F%E8%AE%A1%E6%95%B0%E5%99%A8"><span class="nav-number">1.2.1.</span> <span class="nav-text">PC（程序计数器）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#rf%E5%AF%84%E5%AD%98%E5%99%A8%E6%96%87%E4%BB%B6"><span class="nav-number">1.2.2.</span> <span class="nav-text">RF（寄存器文件）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#alu"><span class="nav-number">1.2.3.</span> <span class="nav-text">ALU</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#mux"><span class="nav-number">1.2.4.</span> <span class="nav-text">MUX</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B7%BB%E5%8A%A0%E6%8C%87%E4%BB%A4"><span class="nav-number">1.3.</span> <span class="nav-text">添加指令</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#bne-%E4%B8%8D%E7%9B%B8%E7%AD%89%E8%B7%B3%E8%BD%AC%E5%88%86%E6%94%AF%E6%8C%87%E4%BB%A4-i-%E5%9E%8B"><span class="nav-number">1.3.1.</span> <span class="nav-text">bne 不相等跳转分支指令 I 型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#sll-srl-sllv-srlv-%E7%A7%BB%E4%BD%8D%E6%8C%87%E4%BB%A4-r%E5%9E%8B"><span class="nav-number">1.3.2.</span> <span class="nav-text">sll &amp; srl &amp; sllv &amp; srlv 移位指令 R型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#slti-%E5%B0%8F%E4%BA%8E%E7%AB%8B%E5%8D%B3%E6%95%B0%E5%88%99%E7%BD%AE%E4%BD%8D-i-%E5%9E%8B-001010"><span class="nav-number">1.3.3.</span> <span class="nav-text">slti 小于立即数则置位 I 型 001010</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#nor-%E5%BC%82%E6%88%96-r%E5%9E%8B-funct100111"><span class="nav-number">1.3.4.</span> <span class="nav-text">nor 异或 R型 funct100111</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#lui-%E7%AB%8B%E5%8D%B3%E6%95%B0%E9%AB%98-16-%E4%BD%8D%E6%94%BE%E8%BF%9B%E4%B8%80%E4%B8%AA%E5%AF%84%E5%AD%98%E5%99%A8-i-%E5%9E%8B-funct001111"><span class="nav-number">1.3.5.</span> <span class="nav-text">lui 立即数高 16 位放进一个寄存器 I 型 funct001111</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#andi-%E7%AB%8B%E5%8D%B3%E6%95%B0%E4%B8%8E-i-%E5%9E%8B-op001100"><span class="nav-number">1.3.6.</span> <span class="nav-text">andi 立即数与 I 型 op:001100</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#jr-%E5%AF%84%E5%AD%98%E5%99%A8%E8%B7%B3%E8%BD%AC-r%E5%9E%8B-001000"><span class="nav-number">1.3.7.</span> <span class="nav-text">jr 寄存器跳转 R型 001000</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#jalr-%E8%B7%B3%E8%BD%AC%E5%B9%B6%E9%93%BE%E6%8E%A5%E5%88%B0%E5%AF%84%E5%AD%98%E5%99%A8-r%E5%9E%8B-001001"><span class="nav-number">1.3.8.</span> <span class="nav-text">jalr 跳转并链接到寄存器 R型 001001</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C-%E5%A4%9A%E5%91%A8%E6%9C%9F-cpu"><span class="nav-number">2.</span> <span class="nav-text">二、 多周期 CPU</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9C%A8%E5%8D%95%E5%91%A8%E6%9C%9F%E5%9F%BA%E7%A1%80%E4%B8%8A%E7%9A%84%E4%BF%AE%E6%94%B9"><span class="nav-number">2.1.</span> <span class="nav-text">在单周期基础上的修改</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#crtl%E9%83%A8%E5%88%86%E7%9A%84%E7%8A%B6%E6%80%81%E8%BD%AC%E7%A7%BB"><span class="nav-number">2.2.</span> <span class="nav-text">Crtl部分的状态转移</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Liquid</p>
+  <div class="site-description" itemprop="description">一个写字的地方而已</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">13</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Liquid</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+<div class="run_time" style=" text-align:center;">
+  <span id="timeDate">载入天数...</span><span id="times">载入时分秒...</span>
+  <script>
+    var now = new Date(); 
+    function createtime() { 
+        var grt= new Date("04/21/2021 01:24:31");//此处修改你的建站时间或者网站上线时间 
+        now.setTime(now.getTime()+250); 
+        days = (now - grt ) / 1000 / 60 / 60 / 24; dnum = Math.floor(days); 
+        hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum); hnum = Math.floor(hours); 
+        if(String(hnum).length ==1 ){hnum = "0" + hnum;} minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum); 
+        mnum = Math.floor(minutes); if(String(mnum).length ==1 ){mnum = "0" + mnum;} 
+        seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum); 
+        snum = Math.round(seconds); if(String(snum).length ==1 ){snum = "0" + snum;} 
+        document.getElementById("timeDate").innerHTML = "本站已安全运行 "+dnum+" 天 "; 
+        document.getElementById("times").innerHTML = hnum + " 小时 " + mnum + " 分 " + snum + " 秒"; 
+    } 
+    setInterval("createtime()",250);
+  </script>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script color='0,0,255' opacity='0.5' zIndex='-1' count='99' src="/lib/canvas-nest/canvas-nest-nomobile.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+
+  <canvas id="evanyou"></canvas>
+  <style>
+    #evanyou {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      z-index: -1;
+    }
+  </style>
+  <script src="/js/evan-you.js"></script>
+
+</body>
+</html>

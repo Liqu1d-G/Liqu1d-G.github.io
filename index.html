@@ -158,6 +158,310 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/03/17/%E8%AE%A1%E7%BB%84%E5%AE%9E%E9%AA%8C-cpu%E8%AE%BE%E8%AE%A1-%E6%8C%87%E4%BB%A4%E6%B7%BB%E5%8A%A0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Liquid">
+      <meta itemprop="description" content="一个写字的地方而已">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Liquid's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/03/17/%E8%AE%A1%E7%BB%84%E5%AE%9E%E9%AA%8C-cpu%E8%AE%BE%E8%AE%A1-%E6%8C%87%E4%BB%A4%E6%B7%BB%E5%8A%A0/" class="post-title-link" itemprop="url">计组实验-cpu设计-指令添加</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2022-03-17 13:29:11 / 修改时间：13:31:01" itemprop="dateCreated datePublished" datetime="2022-03-17T13:29:11+08:00">2022-03-17</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%AE%9E%E9%AA%8C%E8%AE%B0%E5%BD%95/" itemprop="url" rel="index"><span itemprop="name">实验记录</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="一-单周期-cpu">一、 单周期 CPU</h2>
+<h3 id="概述">概述</h3>
+<h4 id="单周期-cpu">1．单周期 CPU</h4>
+<p>    CPU每个时钟周期跑一个指令</p>
+<h4 id="支持的指令">2．支持的指令：</h4>
+<p>（最后一行为按照实验要求自行添加的）</p>
+<ul>
+<li><p>add/sub/and/or/slt/sltu/addu/subu  </p></li>
+<li><p>addi/ori/lw/sw/beq</p></li>
+<li><p>j/jal</p></li>
+<li><p>sll/nor/lui/slti/bne/andi/srl/sllv/srlv/jr/jalr</p></li>
+</ul>
+<h4 id="主要模块">3．主要模块：</h4>
+<ol type="1">
+<li><p>alu.v:计算模块，负责各个指令在 EX 段的算术操作。</p></li>
+<li><p>crtl.v：译码模块，将 MIPS 汇编语言程序形成的机械指令进行译码。</p></li>
+<li><p>crtl_encode.v：编码模块，存放各种编码。</p></li>
+<li><p>dm.v ：存储器操作模块，负责进行MEM操作。</p></li>
+<li><p>EXT.v：数字扩展模块，对一些立即数进行符号拓展或零拓展。</p></li>
+<li><p>im.v ：指令储存模块，进行取指操作。</p></li>
+<li><p>mux.v:选择器模块，根据指令的不同，来进行各阶段相应数据的选择。</p></li>
+<li><p>NPC.v：指令地址计算模块，负责计算下一条指令的地址。</p></li>
+<li><p>PC.v：程序计数器，负责生成下一条指令的地址。</p></li>
+<li><p>sscomp_tb.v：顶层实体文件</p></li>
+<li><p>sccpu.v：主模块，负责连接各个模块进行统一操作</p></li>
+<li><p>sccomp.v：顶层模块，连接CPU和存储器。</p></li>
+<li><p>RF.v:寄存器堆，负责寄存器的写入和输出。</p></li>
+</ol>
+<h3 id="重要部件">重要部件</h3>
+<h4 id="pc程序计数器"><strong>PC（程序计数器）</strong></h4>
+<p>根据当前具体的指令，决定下一条指令的地址。</p>
+<p><strong>接口</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th>信号名</th>
+<th>方向</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Clk</td>
+<td>Input</td>
+<td>时钟信号</td>
+</tr>
+<tr class="even">
+<td>Rst</td>
+<td>Input</td>
+<td>复位信号</td>
+</tr>
+<tr class="odd">
+<td>NPC</td>
+<td>Input</td>
+<td>计算下一条指令地址的模块</td>
+</tr>
+<tr class="even">
+<td>PC</td>
+<td>Output</td>
+<td>输出</td>
+</tr>
+</tbody>
+</table>
+<h4 id="rf寄存器文件"><strong>RF（寄存器文件）</strong></h4>
+<p>功能描述 读出和写入寄存器</p>
+<p>读出：不需要控制</p>
+<p>写入：RFWr 为 1</p>
+<figure>
+<img src="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20211208161642606.png" alt="image20211208161642606"><figcaption aria-hidden="true">image20211208161642606</figcaption>
+</figure>
+<p><strong>接口：</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th>信号名</th>
+<th>方向</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Clk</td>
+<td>Input</td>
+<td>时钟信号</td>
+</tr>
+<tr class="even">
+<td>Rst</td>
+<td>Input</td>
+<td>复位信号</td>
+</tr>
+<tr class="odd">
+<td>RFWr</td>
+<td>Input</td>
+<td>写回信号</td>
+</tr>
+<tr class="even">
+<td>A1[4:0]</td>
+<td>Input</td>
+<td>寄存器Rs的地址寻址信号</td>
+</tr>
+<tr class="odd">
+<td>A2[4:0]</td>
+<td>Input</td>
+<td>寄存器Rt的地址寻址信号</td>
+</tr>
+<tr class="even">
+<td>A3[4:0]</td>
+<td>Input</td>
+<td>寄存器Rd的地址寻址信号</td>
+</tr>
+<tr class="odd">
+<td>WD[32:0]</td>
+<td>Input</td>
+<td>写回的数据</td>
+</tr>
+<tr class="even">
+<td>Reg_sel</td>
+<td>Input</td>
+<td>写入信号选择（Rd or Shamt）</td>
+</tr>
+<tr class="odd">
+<td>RD1[31:0]</td>
+<td>Output</td>
+<td>寄存器输出</td>
+</tr>
+<tr class="even">
+<td>RD2[31:0]</td>
+<td>Output</td>
+<td>寄存器输出</td>
+</tr>
+<tr class="odd">
+<td>Reg_data[31:0]</td>
+<td>Output</td>
+<td>根据Reg_sel选择的输出信号</td>
+</tr>
+</tbody>
+</table>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">  <span class="keyword">module</span> RF(   <span class="keyword">input</span>         clk, </span><br><span class="line">               <span class="keyword">input</span>         rst,</span><br><span class="line">               <span class="keyword">input</span>         RFWr, </span><br><span class="line">               <span class="keyword">input</span>  [<span class="number">4</span>:<span class="number">0</span>]  A1, A2, A3, </span><br><span class="line">               <span class="keyword">input</span>  [<span class="number">31</span>:<span class="number">0</span>] WD, </span><br><span class="line">               <span class="keyword">output</span> [<span class="number">31</span>:<span class="number">0</span>] RD1, RD2,</span><br><span class="line">               <span class="keyword">input</span>  [<span class="number">4</span>:<span class="number">0</span>]  reg_sel,</span><br><span class="line">               <span class="keyword">output</span> [<span class="number">31</span>:<span class="number">0</span>] reg_data);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">reg</span> [<span class="number">31</span>:<span class="number">0</span>] rf[<span class="number">31</span>:<span class="number">0</span>];</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (RFWr) <span class="keyword">begin</span></span><br><span class="line">        rf[A3] &lt;= WD;</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">assign</span> RD1 = (A1 != <span class="number">0</span>) ? rf[A1] : <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">assign</span> RD2 = (A2 != <span class="number">0</span>) ? rf[A2] : <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">assign</span> reg_data = (reg_sel != <span class="number">0</span>) ? rf[reg_sel] : <span class="number">0</span>; </span><br><span class="line"></span><br><span class="line"><span class="keyword">endmodule</span> </span><br></pre></td></tr></table></figure>
+<h4 id="alu"><strong>ALU</strong></h4>
+<p>功能描述：执行 CPU 的各种计算</p>
+<p>ALUOp[2:0]：决定执行何种计算</p>
+<p>其中 A、B 取决于一些选择信号</p>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">mux2 <span class="variable">#(32)</span> U_MUX_ALU_A(</span><br><span class="line">   <span class="variable">.d0</span>(RD1),<span class="variable">.d1</span>(shamt),<span class="variable">.s</span>(AregSel),<span class="variable">.y</span>(A)</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line"><span class="comment">// mux for ALU B</span></span><br><span class="line">mux2 <span class="variable">#(32)</span> U_MUX_ALU_B (</span><br><span class="line">   <span class="variable">.d0</span>(writedata), <span class="variable">.d1</span>(Imm32), <span class="variable">.s</span>(ALUSrc), <span class="variable">.y</span>(B)</span><br><span class="line">);   </span><br><span class="line"></span><br><span class="line"><span class="comment">// instantiation of alu</span></span><br><span class="line">alu U_ALU ( </span><br><span class="line">   <span class="variable">.A</span>(A), <span class="variable">.B</span>(B), <span class="variable">.ALUOp</span>(ALUOp), <span class="variable">.C</span>(aluout), <span class="variable">.Zero</span>(Zero)</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+<h4 id="mux">MUX</h4>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// mux for register data to write</span></span><br><span class="line">  mux4 <span class="variable">#(5)</span> U_MUX4_GPR_A3 (</span><br><span class="line">     <span class="variable">.d0</span>(rd), <span class="variable">.d1</span>(rt), <span class="variable">.d2</span>(<span class="number">5&#x27;b11111</span>), <span class="variable">.d3</span>(<span class="number">5&#x27;b0</span>), <span class="variable">.s</span>(GPRSel), <span class="variable">.y</span>(A3)</span><br><span class="line">  );</span><br><span class="line"> <span class="comment">//选择要写入数据的寄存器，A3在RF中用作RFWr，即写入寄存器的序号</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// mux for register address to write</span></span><br><span class="line">  mux4 <span class="variable">#(32)</span> U_MUX4_GPR_WD (</span><br><span class="line">     <span class="variable">.d0</span>(aluout), <span class="variable">.d1</span>(readdata), <span class="variable">.d2</span>(PC + <span class="number">4</span>), <span class="variable">.d3</span>(<span class="number">32&#x27;b0</span>), <span class="variable">.s</span>(WDSel), <span class="variable">.y</span>(WD)</span><br><span class="line">  );</span><br><span class="line">   <span class="comment">// 这里在选择把哪个数据写回到寄存器中，可能是ALU计算的结果（移位），可能是从存储器中读出的数据（lw），可能是暂存的下一条指令地址（j型），可能什么也没有（不写入）</span></span><br><span class="line"></span><br><span class="line">  mux2 <span class="variable">#(32)</span> U_MUX_ALU_A(</span><br><span class="line">     <span class="variable">.d0</span>(RD1),<span class="variable">.d1</span>(shamt),<span class="variable">.s</span>(AregSel),<span class="variable">.y</span>(A)</span><br><span class="line">  );</span><br><span class="line">   <span class="comment">// 在ALU内部起作用，决定是用rd来逻辑移位，还是用shamt来逻辑移位</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// mux for ALU B</span></span><br><span class="line">  mux2 <span class="variable">#(32)</span> U_MUX_ALU_B (</span><br><span class="line">     <span class="variable">.d0</span>(writedata), <span class="variable">.d1</span>(Imm32), <span class="variable">.s</span>(ALUSrc), <span class="variable">.y</span>(B)</span><br><span class="line">  );   </span><br><span class="line">   <span class="comment">// 寄存器读出的第一个数据肯定会被送进ALU，这里是在选择是把寄存器读出的第二个数据放进ALU，还是放立即数，之所以叫writedata，是因为这个数据同时也会被送到MEM中</span></span><br></pre></td></tr></table></figure>
+<h3 id="添加指令">添加指令</h3>
+<h4 id="bne-不相等跳转分支指令-i-型">bne 不相等跳转分支指令 I 型</h4>
+<p>bne rs, rt, label1 形式为 6 5 5 16（offeset)</p>
+<p>func[5:0]:000101</p>
+<p>1．crtl.v 模块添加相应wire 信号</p>
+<p>2．ALU 模块中添加运算</p>
+<p>ALIOP 0010 与 sub 相同，本质上就是相减判断是否为0</p>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">`ALU_SUB:  C = A - B;                      // SUB</span></span><br></pre></td></tr></table></figure>
+<p>3．由于 bne 指令要跳转，所以要修改 npc操作码</p>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">assign</span> NPCOp[<span class="number">0</span>] = (i_beq &amp; Zero)|(i_bne &amp;~ Zero) | i_jr | i_jalr;</span><br></pre></td></tr></table></figure>
+<h4 id="sll-srl-sllv-srlv-移位指令-r型">sll &amp; srl &amp; sllv &amp; srlv 移位指令 R型</h4>
+<p>sll 逻辑左移 R型 funct 000000 sll rd, rt, shamt rd =rt &lt;&lt; shamt 655556 形式</p>
+<p>srl 逻辑右移 R型 funct 000010 srl rd, rt, shamt rd =rt &gt;&gt; shamt 655556 形式</p>
+<p>sllv 逻辑左移变量 R型 funct 000100 srllv rd, rt, rs rd =rt &lt;&lt; rs 655556</p>
+<p>srlv 逻辑右移变量 R型 funct 000110 srlv rd, rt, rs rd =rt &gt;&gt; rs 65556</p>
+<p>1．crtl.v 中需要添加多路选择器，判断选择 rs 还是 shamt</p>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">assign</span> AregSel    = i_sll | i_srl;</span><br></pre></td></tr></table></figure>
+<p>2．sccpu.v 模块绑定信号 <code>AregSel,shamt,Alu_A</code></p>
+<p>对 shamt 信号格式进行定义, 前 27 位为 0，取 6 到 10 位指令</p>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">assign</span> shamt=&#123;<span class="number">27&#x27;b0</span>,instr[<span class="number">10</span>:<span class="number">6</span>]&#125;;</span><br></pre></td></tr></table></figure>
+<p>3．补充多路选择器 mux2</p>
+<p>4．alu.v 模块输入端口进行修改</p>
+<p>sllv 和 srlv 在原来的基础上只需要修改译码和操作数</p>
+<h4 id="slti-小于立即数则置位-i-型-001010">slti 小于立即数则置位 I 型 001010</h4>
+<p>slti rt, rs, imm 65516</p>
+<p>1．指令译码，Crtl.v 添加对应信号</p>
+<p>2．寄存器写信号</p>
+<p>3．Aluop 操作码与 slt 一致</p>
+<h4 id="nor-异或-r型-funct100111">nor 异或 R型 funct100111</h4>
+<p>nor rd, rs, rt 0 rs rt rd 0 0x27(6 5 5 5 5 6)</p>
+<p>rd = ~(rs|rt)</p>
+<p>1．ALU 模块进行扩充</p>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ALU_NOR:  C = ~(A | B);</span><br></pre></td></tr></table></figure>
+<p>2．Crtl_encode 添加相应的操作码</p>
+<p>3．Crtl.v 添加译码</p>
+<p>4．Aluop 操作控制码修改</p>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">assign</span> ALUOp[<span class="number">3</span>]=  i_sll | i_sllv | i_srl | i_srlv | i_nor | i_lui ;</span><br></pre></td></tr></table></figure>
+<h4 id="lui-立即数高-16-位放进一个寄存器-i-型-funct001111">lui 立即数高 16 位放进一个寄存器 I 型 funct001111</h4>
+<p>lui rt, imm RT={imm,16'b0} 6 5 5 16</p>
+<p>需要 16 位立即数符号扩展，再左移 16 位</p>
+<figure>
+<img src="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20211208182354123.png" alt="image20211208182354123"><figcaption aria-hidden="true">image20211208182354123</figcaption>
+</figure>
+<p>1．Ctrl.v 添加指令译码信号</p>
+<p>2．寄存器写信号</p>
+<p>3．写回 rt 寄存器</p>
+<p>4．零扩展</p>
+<p>5．Alu_op 操作码修改</p>
+<p>6．ALU 运算取数据信号修改，取一个立即数</p>
+<h4 id="andi-立即数与-i-型-op001100">andi 立即数与 I 型 op:001100</h4>
+<p>andi rt rs imm (6 5 5 16)</p>
+<figure>
+<img src="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20211208184647663.png" alt="image20211208184647663"><figcaption aria-hidden="true">image20211208184647663</figcaption>
+</figure>
+<p>1．crtl.v 添加译码</p>
+<p>2．零扩展信号</p>
+<p>3．添加寄存器写信号</p>
+<p>4．Alu 需要进行选择，添加 Alu_op</p>
+<p>5．Alu 端口需要进行选择，修改 AluSrc</p>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">output</span>       ALUSrc;   <span class="comment">// ALU source for A</span></span><br><span class="line"><span class="keyword">assign</span> ALUSrc     = i_lw | i_sw | i_addi | i_ori | i_slti | i_lui | i_andi;   </span><br><span class="line"><span class="comment">// ALU B is from instruction immediate</span></span><br></pre></td></tr></table></figure>
+<h4 id="jr-寄存器跳转-r型-001000">jr 寄存器跳转 R型 001000</h4>
+<p>jr rs(无条件跳转到由寄存器 rs 指定的指令） 0 rs 0 8(6 5 15 6)</p>
+<p>pc=GPR[rs]</p>
+<figure>
+<img src="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20211208184730702.png" alt="image20211208184730702"><figcaption aria-hidden="true">image20211208184730702</figcaption>
+</figure>
+<p>1．Crtl.v 添加指令译码信号</p>
+<p>2．NPCOp 修改</p>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">assign</span> NPCOp[<span class="number">1</span>] = i_j | i_jal | i_jr | i_jalr;</span><br></pre></td></tr></table></figure>
+<p>3．Crtl_encode 修改</p>
+<p>4．NPC 模块修改</p>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">`NPC_JR:     NPC = PCJR;</span></span><br></pre></td></tr></table></figure>
+<h4 id="jalr-跳转并链接到寄存器-r型-001001">jalr 跳转并链接到寄存器 R型 001001</h4>
+<p>jalr rs rd 0 rs 0 rd 0 9(6 5 5 5 5 6)</p>
+<p>pc=GPR[rs]; GPR[rd]=pc+4</p>
+<figure>
+<img src="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20211208185051105.png" alt="image20211208185051105"><figcaption aria-hidden="true">image20211208185051105</figcaption>
+</figure>
+<p>1．Crtl.v 添加指令译码信号</p>
+<p>2．添加寄存器写信号</p>
+<p>3．选择需要写的来自 PC 数据__</p>
+<p>4．对 NPC 选择</p>
+<h2 id="二-多周期-cpu">二、 多周期 CPU</h2>
+<h3 id="在单周期基础上的修改">在单周期基础上的修改</h3>
+<p>1、 在单周期 CPU 模块设计上进行改进，采用类似的思路。各个模块之间相互连接，实现将一条指令的五个阶段顺序执行的过程。</p>
+<p>2、 模块设计以功能部件为基础进行构造，进而构造顶层实体</p>
+<p>3、 模块组成： alu.v,crtl.v,crtl_encode_def.v,dm.v,EXT.v,flopenr.v,flopr.v,mc comp.v,mmcpu.v,mux.v,RF.v</p>
+<p>4、 多周期 CPU 特征模块介绍</p>
+<h3 id="crtl部分的状态转移">Crtl部分的状态转移</h3>
+<p>与单周期控制模块不同,多周期 cpu 控制模块增加了指令的执行的状态，对于指令的五个阶段分别进行相应的操作。根据指令的特征选择指令具有的阶段。</p>
+<p><strong>对于状态转移的控制</strong></p>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br></pre></td><td class="code"><pre><span class="line"> <span class="keyword">reg</span> [<span class="number">2</span>:<span class="number">0</span>] nextstate;</span><br><span class="line"> <span class="keyword">reg</span> [<span class="number">2</span>:<span class="number">0</span>] state;</span><br><span class="line"></span><br><span class="line"> <span class="keyword">always</span> @(<span class="keyword">posedge</span> clk <span class="keyword">or</span> <span class="keyword">posedge</span> rst) <span class="keyword">begin</span></span><br><span class="line">   <span class="keyword">if</span> ( rst )</span><br><span class="line">     state &lt;= sif;</span><br><span class="line">   <span class="keyword">else</span></span><br><span class="line">     state &lt;= nextstate;</span><br><span class="line"> <span class="keyword">end</span> <span class="comment">// end always</span></span><br><span class="line"></span><br><span class="line"> <span class="keyword">parameter</span>  [<span class="number">2</span>:<span class="number">0</span>] sif  = <span class="number">3&#x27;b000</span>,                <span class="comment">// IF  state</span></span><br><span class="line">                  sid  = <span class="number">3&#x27;b001</span>,                <span class="comment">// ID  state</span></span><br><span class="line">                  sexe = <span class="number">3&#x27;b010</span>,                <span class="comment">// EXE state</span></span><br><span class="line">                  smem = <span class="number">3&#x27;b011</span>,                <span class="comment">// MEM state</span></span><br><span class="line">                  swb  = <span class="number">3&#x27;b100</span>;                <span class="comment">// WB  state</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/*************************************************/</span></span><br><span class="line"><span class="comment">/******         Control Signal              ******/</span></span><br><span class="line"> <span class="keyword">always</span> @(*) <span class="keyword">begin</span></span><br><span class="line">   RegWrite = <span class="number">0</span>;</span><br><span class="line">   MemWrite = <span class="number">0</span>;</span><br><span class="line">   PCWrite  = <span class="number">0</span>;</span><br><span class="line">   IRWrite  = <span class="number">0</span>;</span><br><span class="line">   EXTOp    = <span class="number">1</span>;           <span class="comment">// signed extension</span></span><br><span class="line">   ALUSrcA  = <span class="number">1</span>;           <span class="comment">// 1 - ReadData1</span></span><br><span class="line">   ALUSrcB  = <span class="number">2&#x27;b00</span>;       <span class="comment">// 0 - ReadData2</span></span><br><span class="line">   ALUOp    = <span class="number">4&#x27;b0001</span>;      <span class="comment">// ALU_ADD       3&#x27;b001</span></span><br><span class="line">   GPRSel   = <span class="number">2&#x27;b00</span>;       <span class="comment">// GPRSel_RD     2&#x27;b00</span></span><br><span class="line">   WDSel    = <span class="number">2&#x27;b00</span>;       <span class="comment">// WDSel_FromALU 2&#x27;b00</span></span><br><span class="line">   PCSource = <span class="number">3&#x27;b000</span>;       <span class="comment">// PC + 4 (ALU)</span></span><br><span class="line">   IorD     = <span class="number">0</span>;           <span class="comment">// 0-memory access for instruction</span></span><br><span class="line">   AregSel  = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">   <span class="keyword">case</span> (state)</span><br><span class="line">        sif: <span class="keyword">begin</span></span><br><span class="line">          PCWrite = <span class="number">1</span>;</span><br><span class="line">          IRWrite = <span class="number">1</span>;</span><br><span class="line">          ALUSrcA = <span class="number">0</span>;      <span class="comment">// PC</span></span><br><span class="line">          ALUSrcB = <span class="number">2&#x27;b01</span>;  <span class="comment">// 4</span></span><br><span class="line">          nextstate = sid;</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">        sid: <span class="keyword">begin</span></span><br><span class="line">          <span class="keyword">if</span> (i_j) <span class="keyword">begin</span></span><br><span class="line">            PCSource = <span class="number">3&#x27;b010</span>; <span class="comment">// JUMP address</span></span><br><span class="line">            PCWrite = <span class="number">1</span>;</span><br><span class="line">            nextstate = sif;</span><br><span class="line">          <span class="keyword">end</span> <span class="keyword">else</span> <span class="keyword">if</span> (i_jal) <span class="keyword">begin</span></span><br><span class="line">            PCSource = <span class="number">3&#x27;b010</span>; <span class="comment">// JUMP address</span></span><br><span class="line">            PCWrite = <span class="number">1</span>;</span><br><span class="line">            RegWrite = <span class="number">1</span>;</span><br><span class="line">            WDSel = <span class="number">2&#x27;b10</span>;    <span class="comment">// WDSel_FromPC  2&#x27;b10 </span></span><br><span class="line">            GPRSel = <span class="number">2&#x27;b10</span>;   <span class="comment">// GPRSel_31     2&#x27;b10</span></span><br><span class="line">            nextstate = sif;</span><br><span class="line">          <span class="keyword">end</span> <span class="keyword">else</span> <span class="keyword">if</span> (i_jr) <span class="keyword">begin</span></span><br><span class="line">            PCSource = <span class="number">3&#x27;b100</span>;</span><br><span class="line">            PCWrite = <span class="number">1</span>;</span><br><span class="line">            nextstate = sif;</span><br><span class="line">          <span class="keyword">end</span> <span class="keyword">else</span> <span class="keyword">if</span> (i_jalr) <span class="keyword">begin</span></span><br><span class="line">            PCSource = <span class="number">3&#x27;b100</span>;</span><br><span class="line">            PCWrite = <span class="number">1</span>;</span><br><span class="line">            RegWrite = <span class="number">1</span>;</span><br><span class="line">            WDSel = <span class="number">2&#x27;b10</span>;    <span class="comment">// WDSel_FromPC  2&#x27;b10 </span></span><br><span class="line">            GPRSel = <span class="number">2&#x27;b10</span>;   <span class="comment">// GPRSel_31     2&#x27;b10</span></span><br><span class="line">            nextstate = sif;</span><br><span class="line">          <span class="keyword">end</span> <span class="keyword">else</span> <span class="keyword">begin</span></span><br><span class="line">            ALUSrcA = <span class="number">0</span>;       <span class="comment">// PC</span></span><br><span class="line">            ALUSrcB = <span class="number">2&#x27;b11</span>;   <span class="comment">// branch offset</span></span><br><span class="line">            nextstate = sexe;</span><br><span class="line">          <span class="keyword">end</span></span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// ALU_NOP   4&#x27;b0000</span></span><br><span class="line">        <span class="comment">// ALU_ADD   4&#x27;b0001</span></span><br><span class="line">        <span class="comment">// ALU_SUB   4&#x27;b0010</span></span><br><span class="line">        <span class="comment">// ALU_AND   4&#x27;b0011</span></span><br><span class="line">        <span class="comment">// ALU_OR    4&#x27;b0100</span></span><br><span class="line">        <span class="comment">// ALU_SLT   4&#x27;b0101</span></span><br><span class="line">        <span class="comment">// ALU_SLTU  4&#x27;b0110</span></span><br><span class="line">        <span class="comment">// ALU_SLL   4&#x27;b0111     </span></span><br><span class="line">        <span class="comment">// ALU_SRL   4&#x27;b1000</span></span><br><span class="line">        <span class="comment">// ALU_NOR   4&#x27;b1001</span></span><br><span class="line">        <span class="comment">// ALU_LUI   4&#x27;b1010</span></span><br><span class="line"></span><br><span class="line">        sexe: <span class="keyword">begin</span></span><br><span class="line">            ALUOp[<span class="number">0</span>] = i_add | i_lw | i_sw | i_addi | i_and | i_slt | i_addu | i_sll | i_sllv | i_slti | i_nor | i_andi;</span><br><span class="line">            ALUOp[<span class="number">1</span>] = i_sub | i_beq | i_and | i_sltu | i_subu | i_bne | i_sll | i_sllv | i_lui | i_andi;</span><br><span class="line">            ALUOp[<span class="number">2</span>] = i_or | i_ori | i_slt | i_sltu | i_sll | i_sllv | i_slti;</span><br><span class="line">            ALUOp[<span class="number">3</span>] = i_srl | i_srlv | i_nor | i_lui;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (i_beq) <span class="keyword">begin</span></span><br><span class="line">                  PCSource = <span class="number">3&#x27;b001</span>; <span class="comment">// ALUout, branch address</span></span><br><span class="line">                  PCWrite = i_beq &amp; Zero;</span><br><span class="line">                  nextstate = sif;</span><br><span class="line">            <span class="keyword">end</span> <span class="keyword">else</span> <span class="keyword">if</span>(i_bne) <span class="keyword">begin</span></span><br><span class="line">                  PCSource = <span class="number">3&#x27;b001</span>;</span><br><span class="line">                  PCWrite = i_bne &amp; ~Zero;</span><br><span class="line">                  nextstate =sif;</span><br><span class="line">            <span class="keyword">end</span> <span class="keyword">else</span> <span class="keyword">if</span> (i_lw || i_sw) <span class="keyword">begin</span></span><br><span class="line">                  ALUSrcB = <span class="number">2&#x27;b10</span>; <span class="comment">// select offset</span></span><br><span class="line">                  nextstate = smem;</span><br><span class="line">            <span class="keyword">end</span> <span class="keyword">else</span> <span class="keyword">begin</span></span><br><span class="line">                  <span class="keyword">if</span> (i_addi || i_ori || i_slti || i_lui || i_andi)</span><br><span class="line">                      ALUSrcB = <span class="number">2&#x27;b10</span>; <span class="comment">// select immediate</span></span><br><span class="line">                  <span class="keyword">if</span> (i_ori || i_andi)</span><br><span class="line">                      EXTOp = <span class="number">0</span>; <span class="comment">// zero extension</span></span><br><span class="line">                    <span class="keyword">if</span> (i_sll | i_srl)</span><br><span class="line">                      AregSel = <span class="number">1</span>;</span><br><span class="line">                      nextstate = swb;</span><br><span class="line">            <span class="keyword">end</span></span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">      smem: <span class="keyword">begin</span></span><br><span class="line">          IorD = <span class="number">1</span>;  <span class="comment">// memory address  = ALUout</span></span><br><span class="line">          <span class="keyword">if</span> (i_lw) <span class="keyword">begin</span></span><br><span class="line">            nextstate = swb;</span><br><span class="line">          <span class="keyword">end</span> <span class="keyword">else</span> <span class="keyword">begin</span>  <span class="comment">// i_sw</span></span><br><span class="line">            MemWrite = <span class="number">1</span>;</span><br><span class="line">            nextstate = sif;</span><br><span class="line">          <span class="keyword">end</span></span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">      swb: <span class="keyword">begin</span></span><br><span class="line">        <span class="keyword">if</span> (i_lw)</span><br><span class="line">          WDSel = <span class="number">2&#x27;b01</span>;     <span class="comment">// WDSel_FromMEM 2&#x27;b01</span></span><br><span class="line">        <span class="keyword">if</span> (i_lw | i_addi | i_ori | i_slti | i_lui | i_andi) <span class="keyword">begin</span></span><br><span class="line">          GPRSel = <span class="number">2&#x27;b01</span>;    <span class="comment">// GPRSel_RT     2&#x27;b01</span></span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">        RegWrite = <span class="number">1</span>;</span><br><span class="line">        nextstate = sif;</span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">      <span class="keyword">default</span>: <span class="keyword">begin</span></span><br><span class="line">        nextstate = sif;</span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">   <span class="keyword">endcase</span></span><br><span class="line"> <span class="keyword">end</span> <span class="comment">// end always</span></span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://example.com/2021/12/08/%E6%9C%8D%E5%8A%A1%E5%99%A8pytorch%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -172,7 +476,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2021/12/08/%E6%9C%8D%E5%8A%A1%E5%99%A8pytorch%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/" class="post-title-link" itemprop="url">服务器pytorch环境配置</a>
+            <a href="/2021/12/08/%E6%9C%8D%E5%8A%A1%E5%99%A8pytorch%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/" class="post-title-link" itemprop="url">������pytorch��������</a>
         </h2>
 
         <div class="post-meta">
@@ -189,7 +493,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-02-09 22:53:23" itemprop="dateModified" datetime="2022-02-09T22:53:23+08:00">2022-02-09</time>
+                <time title="修改时间：2022-02-10 23:50:28" itemprop="dateModified" datetime="2022-02-10T23:50:28+08:00">2022-02-10</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -197,7 +501,7 @@
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/" itemprop="url" rel="index"><span itemprop="name">环境配置</span></a>
+                  <a href="/categories/%EF%BF%BD%EF%BF%BD%EF%BF%BD%EF%BF%BD%EF%BF%BD%EF%BF%BD%EF%BF%BD%EF%BF%BD/" itemprop="url" rel="index"><span itemprop="name">��������</span></a>
                 </span>
             </span>
 
@@ -212,94 +516,94 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h2 id="一安装-anaconda">一、安装 Anaconda</h2>
-<p>可以用 wget 命令下载：</p>
+          <h2 id="һװ-anaconda">һ����װ Anaconda</h2>
+<p>������ wget �������أ�</p>
 <blockquote>
 <p>wget <a target="_blank" rel="noopener" href="https://mirrors.tuna.tsinghua.edu.cn/anaconda/archive/Anaconda3-5.1.0-Linux-x86_64.sh" class="uri">https://mirrors.tuna.tsinghua.edu.cn/anaconda/archive/Anaconda3-5.1.0-Linux-x86_64.sh</a></p>
 </blockquote>
-<p>安装好后运行</p>
+<p>��װ�ú�����</p>
 <blockquote>
 <p>bash Anaconda3-5.1.0-Linux-x86_64.sh</p>
 </blockquote>
-<p>然后就一路yes，最后可能会问你是否是否下载VS Code，这个选no就安装成功了（也有可能不会遇到这个选项）。</p>
-<p>重启服务器后进行验证。</p>
-<p>验证Anaconda是否安装成功，在命令行输入python，若显示python版本后带了Anaconda标识就证明Anaconda安装成功。</p>
-<h3 id="安装出现错误">安装出现错误</h3>
-<p>在输入 python 之后，显示没有找到命令</p>
+<p>Ȼ���һ·yes�������ܻ������Ƿ��Ƿ�����VS Code�����ѡno�Ͱ�װ�ɹ��ˣ�Ҳ�п��ܲ����������ѡ���</p>
+<p>�����������������֤��</p>
+<p>��֤Anaconda�Ƿ�װ�ɹ���������������python������ʾpython�汾�����Anaconda��ʶ��֤��Anaconda��װ�ɹ���</p>
+<h3 id="װ">��װ���ִ���</h3>
+<p>������ python ֮����ʾû���ҵ�����</p>
 <figure>
 <img src="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20211207000315353.png" alt="image-20211207000315353"><figcaption aria-hidden="true">image-20211207000315353</figcaption>
 </figure>
-<p>应该是没有配置环境变量的原因</p>
-<p>对于Linux中配置环境变量，现在网上比较流行的有两种方式：</p>
-<p>将路径追加输入bashrc中，并启用</p>
+<p>Ӧ����û�����û���������ԭ��</p>
+<p>����Linux�����û����������������ϱȽ����е������ַ�ʽ��</p>
+<p>��·��׷������bashrc�У�������</p>
 <blockquote>
-<p>echo ‘export PATH="~/anaconda2/bin:$PATH"’ &gt;&gt; ~/.bashrc source ~/.bashrc</p>
+<p>echo ��export PATH="~/anaconda2/bin:$PATH"�� &gt;&gt; ~/.bashrc source ~/.bashrc</p>
 </blockquote>
-<p>但是这种方式好像需要root权限，我是普通用户登录的，权限不够</p>
-<p>而且在退出 vim 时，还出现了这样的错误</p>
+<p>�������ַ�ʽ������ҪrootȨ�ޣ�������ͨ�û���¼�ģ�Ȩ�޲���</p>
+<p>�������˳� vim ʱ���������������Ĵ���</p>
 <figure>
 <img src="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20211207001539522.png" alt="image-20211207001539522"><figcaption aria-hidden="true">image-20211207001539522</figcaption>
 </figure>
-<p>解决：Type ‘q!’ in place of ‘q’ and press Enter.</p>
-<p>因为没有权限，故采用以下方式:</p>
-<p>export方式,直接输入以下命令</p>
+<p>�����Type ��q!�� in place of ��q�� and press Enter.</p>
+<p>��Ϊû��Ȩ�ޣ��ʲ������·�ʽ:</p>
+<p>export��ʽ,ֱ��������������</p>
 <blockquote>
-<p>export PATH="/<span class="math inline">\(HOME/anaconda3/bin:\)</span>PATH" export PATH="<span class="math inline">\(PATH:\)</span>​HOME/anaconda/bin"</p>
+<p>export PATH="/<span class="math inline">\(HOME/anaconda3/bin:\)</span>PATH" export PATH="<span class="math inline">\(PATH:\)</span>?HOME/anaconda/bin"</p>
 </blockquote>
-<p>成功</p>
+<p>�ɹ�</p>
 <figure>
 <img src="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20211207003523538.png" alt="image-20211207003523538"><figcaption aria-hidden="true">image-20211207003523538</figcaption>
 </figure>
-<p>但是这种方法每次重新连接后环境变量都会失效，故使用：</p>
-<p>控制台输入</p>
+<p>�������ַ���ÿ���������Ӻ󻷾���������ʧЧ����ʹ�ã�</p>
+<p>����̨����</p>
 <blockquote>
 <p>vim ~/.bashrc</p>
 </blockquote>
-<p>按 i进入vim编辑，在最后一行添加anaconda的安装路径，</p>
+<p>�� i����vim�༭�������һ������anaconda�İ�װ·����</p>
 <blockquote>
-<p>export PATH="/... 你的路径../anaconda3/bin/:$PATH"</p>
+<p>export PATH="/... ���·��../anaconda3/bin/:$PATH"</p>
 </blockquote>
-<p>按Esc键，再输入 :wq退出</p>
-<p>控制台输入再输入</p>
+<p>��Esc���������� :wq�˳�</p>
+<p>����̨����������</p>
 <blockquote>
 <p>source ~/.bashrc</p>
 </blockquote>
-<p>这样重新连接后环境变量依然生效</p>
-<h2 id="二创建虚拟环境">二、创建虚拟环境</h2>
-<p>删除创建的环境：conda env remove -n 环境名</p>
-<p>创建环境：conda create -n pytorch python=3.x</p>
-<p>激活环境：conda activate pytorch</p>
-<p>退出环境：source deactivate</p>
-<p>进入base环境：source ~/.bashrc</p>
-<h2 id="三-配置-pytorch">三、 配置 pytorch</h2>
-<p>直接去pytorch官网pytorch.org寻找对应的版本，可以提前查看一下你的服务器的cuda版本，</p>
+<p>�����������Ӻ󻷾�������Ȼ��Ч</p>
+<h2 id="section">�����������⻷��</h2>
+<p>ɾ�������Ļ�����conda env remove -n ������</p>
+<p>����������conda create -n pytorch python=3.x</p>
+<p>�������conda activate pytorch</p>
+<p>�˳�������source deactivate</p>
+<p>����base������source ~/.bashrc</p>
+<h2 id="pytorch">���� ���� pytorch</h2>
+<p>ֱ��ȥpytorch����pytorch.orgѰ�Ҷ�Ӧ�İ汾��������ǰ�鿴һ����ķ�������cuda�汾��</p>
 <p>cat /usr/local/cuda/version.txt</p>
 <figure>
 <img src="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/20200522121708106.png" alt="img"><figcaption aria-hidden="true">img</figcaption>
 </figure>
-<p>安装好pytorch后，要重启一下服务器。</p>
-<p>然后验证pytorch是否安装成功，输入python后：</p>
-<h3 id="出现错误">出现错误</h3>
+<p>��װ��pytorch��Ҫ����һ�·�������</p>
+<p>Ȼ����֤pytorch�Ƿ�װ�ɹ�������python��</p>
+<h3 id="section-1">���ִ���</h3>
 <figure>
 <img src="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20211207071715205.png" alt="image-20211207071715205"><figcaption aria-hidden="true">image-20211207071715205</figcaption>
 </figure>
-<p>关了梯子 try again，还是不行</p>
+<p>�������� try again�����ǲ���</p>
 <figure>
 <img src="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20211207072059434.png" alt="image-20211207072059434"><figcaption aria-hidden="true">image-20211207072059434</figcaption>
 </figure>
-<p>换用pip指令，失败</p>
+<p>����pipָ�ʧ��</p>
 <figure>
 <img src="https://raw.githubusercontent.com/Liqu1d-G/Cloud_img/master/image-20211207072347582.png" alt="image-20211207072347582"><figcaption aria-hidden="true">image-20211207072347582</figcaption>
 </figure>
-<h3 id="解决方法">解决方法</h3>
-<p>更换源</p>
-<p>将配置文件写在<code>~/.condarc</code>中 <code>vim ~/.condarc</code></p>
+<h3 id="section-2">�������</h3>
+<p>����Դ</p>
+<p>�������ļ�д��<code>~/.condarc</code>�� <code>vim ~/.condarc</code></p>
 <figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">channels:</span><br><span class="line">  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main/</span><br><span class="line">  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/</span><br><span class="line">  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/conda-forge/</span><br><span class="line">  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/pytorch/</span><br><span class="line">ssl_verify: true</span><br></pre></td></tr></table></figure>
-<p>成功</p>
-<h3 id="检验方法">检验方法</h3>
+<p>�ɹ�</p>
+<h3 id="鷽">���鷽��</h3>
 <ul>
-<li>import torch —— 无报错</li>
-<li>print(torch. <strong>version</strong>) ——输出版本号</li>
+<li>import torch ���� �ޱ���</li>
+<li>print(torch. <strong>version</strong>) ��������汾��</li>
 </ul>
 
       
@@ -1543,152 +1847,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/04/26/BUUCTF-Crypto-WP/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Liquid">
-      <meta itemprop="description" content="一个写字的地方而已">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Liquid's Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/04/26/BUUCTF-Crypto-WP/" class="post-title-link" itemprop="url">BUUCTF Crypto WP</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-04-26 22:50:02" itemprop="dateCreated datePublished" datetime="2021-04-26T22:50:02+08:00">2021-04-26</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-03 14:29:10" itemprop="dateModified" datetime="2021-05-03T14:29:10+08:00">2021-05-03</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/WP/" itemprop="url" rel="index"><span itemprop="name">WP</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="md5">MD5</h2>
-<p>题目：e00cf25ad42683b3df678c61f42c6bda</p>
-<p><strong>flag{admin1}</strong></p>
-<p>MD5是输入不定长度信息，输出固定长度128-bits的算法。经过程序流程，生成四个32位数据，最后联合起来成为一个128-bits<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/散列">散列</a>。基本方式为，求余、取余、调整长度、与链接变量进行循环运算。得出结果。</p>
-<figure>
-<img src="https://wikimedia.org/api/rest_v1/media/math/render/svg/29bfebad4e7bdd4a2fc1210694eb5664262faecc" alt="F(X,Y,Z) = (X) ( )"><figcaption aria-hidden="true">F(X,Y,Z) = (X) ( )</figcaption>
-</figure>
-<figure>
-<img src="https://wikimedia.org/api/rest_v1/media/math/render/svg/7068038702afd55190f991518f3a9188565f32d0" alt="G(X,Y,Z) = (X) (Y )"><figcaption aria-hidden="true">G(X,Y,Z) = (X) (Y )</figcaption>
-</figure>
-<figure>
-<img src="https://wikimedia.org/api/rest_v1/media/math/render/svg/c121ed0510b6ad3ffde9b89cec96ff7552ae9236" alt="H(X,Y,Z) = X Y Z"><figcaption aria-hidden="true">H(X,Y,Z) = X Y Z</figcaption>
-</figure>
-<figure>
-<img src="https://wikimedia.org/api/rest_v1/media/math/render/svg/2f119366de7d323f5e02b8d12a741968fa9d0f99" alt="I(X,Y,Z) = Y (X )"><figcaption aria-hidden="true">I(X,Y,Z) = Y (X )</figcaption>
-</figure>
-<p><img src="https://wikimedia.org/api/rest_v1/media/math/render/svg/ed39414f7a4720bbf82749a9fcd3ebb15220ea72" alt=", , , "> 是 <em>XOR</em>, <em>AND</em>, <em>OR</em> , <em>NOT</em> 的符号。</p>
-<h2 id="password">password</h2>
-<p>题目：姓名：张三 生日：19900315</p>
-<p><strong>flag{zs19900315}</strong></p>
-<p>可能是大多数人的密码都是姓名缩写加生日</p>
-<h2 id="unencode">Unencode</h2>
-<p>题目：</p>
-<p><strong>flag{dsdasdsa99877LLLKK}</strong></p>
-<p><em>Uuencode</em>将输入文本以每三个字节为单位进行编码，如果最后剩下的资料少于三个字节，不够的部份用零补齐。三个字节共有24个Bit，以6-bit为单位分为4个组，每个组以十进制来表示所出现的字节的数值。这个数值只会落在0到63之间。然后将每个数加上32，所产生的结果刚好落在ASCII字符集中可打印字符（32-空白…95-底线）的范围之中。</p>
-<p><a target="_blank" rel="noopener" href="http://blog.chacuo.net/753.html">uuencode编码算法</a></p>
-<h2 id="url编码">URL编码</h2>
-<p>题目：%66%6c%61%67%7b%61%6e%64%20%31%3d%31%7d</p>
-<p><strong>flag{and 1=1}</strong></p>
-<p>这种编码是在特殊字符hex的基础上，在每个字符前置一个%。所以在编码和解码的过程中，<strong>只需要关注%，连带着%的三个字符对应着明文中的一个字符</strong>。</p>
-<h2 id="摩斯">摩斯</h2>
-<p>题目：… .-… — …- . -.-- — …-</p>
-<p><strong>flag{ILOVEYOU}</strong></p>
-<figure>
-<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/%E5%9B%BD%E9%99%85%E6%91%A9%E5%B0%94%E6%96%AF%E7%94%B5%E7%A0%81.svg/315px-%E5%9B%BD%E9%99%85%E6%91%A9%E5%B0%94%E6%96%AF%E7%94%B5%E7%A0%81.svg.png" alt="img"><figcaption aria-hidden="true">img</figcaption>
-</figure>
-<h2 id="一眼就解密">一眼就解密</h2>
-<p>题目：ZmxhZ3tUSEVfRkxBR19PRl9USElTX1NUUklOR30=</p>
-<p><strong>flag{THE_FLAG_OF_THIS_STRING}</strong></p>
-<p>base64编码</p>
-<p><strong>base三种编码的分辨方法</strong></p>
-<p>首先看有没有符号，base64和base32都以’=‘作为空白补足符符号，如果结尾没有’='有可能是base16。如果出现了+和/，那么一定是base64。</p>
-<p>然后看大小写字母，如果有大写有小写就一定是base64。如果全是大写的情况就看具体字母有没有F之后的字母出现，因为base16就是16进制，字母部分只到F。</p>
-<p>当然这个base32的数字部分只有2-7，不过数字一般不好判断，所以这里不推荐用数字进行判断。</p>
-<p>最后基本上就可以判断出来了，实在不行就拿去在线网站挨个方式解码，也不麻烦。</p>
-<h2 id="看我回旋踢">看我回旋踢</h2>
-<p>题目：synt{5pq1004q-86n5-46q8-o720-oro5on0417r1}</p>
-<p><strong>flag{5cd1004d-86a5-46d8-b720-beb5ba0417e1}</strong></p>
-<p>凯撒密码，密文中的synt是很典型的偏移量为13的凯撒密码</p>
-<h2 id="变异凯撒">变异凯撒</h2>
-<p>题目：加密密文：afZ_r9VYfScOeO_UL^RWUc 格式：flag{ }</p>
-<p><strong>flag{Caesar_variation}</strong></p>
-<p>先用普通凯撒做，结果为空</p>
-<p>因为知道格式为<code>flag&#123;</code> 观察前四位，对应的偏移量为5、6、7、8、9，猜测每移动一位偏移量就加一</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">s = <span class="string">&#x27;afZ_r9VYfScOeO_UL^RWUc&#x27;</span></span><br><span class="line">flag = <span class="string">&#x27;&#x27;</span></span><br><span class="line">offset = <span class="number">5</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> s:</span><br><span class="line">	flag += <span class="built_in">str</span>(<span class="built_in">chr</span>(<span class="built_in">ord</span>(i) + offset))</span><br><span class="line">	offset += <span class="number">1</span></span><br><span class="line"><span class="built_in">print</span> (flag)</span><br></pre></td></tr></table></figure>
-<h2 id="quoted-printable">Quoted-printable</h2>
-<p>题目：=E9=82=A3=E4=BD=A0=E4=B9=9F=E5=BE=88=E6=A3=92=E5=93=A6</p>
-<p><strong>flag{那你也很棒哦}</strong></p>
-<p>hex编码</p>
-<h2 id="rabbit">Rabbit</h2>
-<p>题目：U2FsdGVkX1/+ydnDPowGbjjJXhZxm2MP2AgI</p>
-<p><strong>flag{Cute_Rabbit}</strong></p>
-<p>Rabbit 是一种高速流密码，于2003 年在FSE 研讨会上首次提出。 Rabbit 使用一个128 位密钥和一个64 位初始化向量。 该加密算法的核心组件是一个位流生成器，该流生成器每次迭代都会加密128 个消息位。 Rabbit 也是一种对称加密算法。</p>
-<h2 id="篱笆墙的影子">篱笆墙的影子</h2>
-<p>题目：felhaagv{ewtehtehfilnakgw}</p>
-<p><strong>flag{wethinkwehavetheflag}</strong></p>
-<p>栅栏密码</p>
-<p>观察可以发现<code>felhaagv&#123;ewtehtehfilnakgw&#125;</code>，<code>f</code>和<code>l</code>的下标差为2，总字符数为26，所以密钥即栅栏的长度为13</p>
-<h2 id="rsa">RSA</h2>
-<p>题目：在一次RSA密钥对生成中，假设p=473398607161，q=4511491，e=17 求解出d作为flga提交</p>
-<p><strong>flag{125631357777427553}</strong></p>
-<h2 id="丢失的md5">丢失的MD5</h2>
-<p><strong>flag{e9032994dabac08080091151380478a2}</strong></p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1758,20 +1916,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">12</span>
+          <span class="site-state-item-count">13</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-count">5</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-count">11</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
